@@ -165,20 +165,22 @@ const InstructionTemplateComponent: React.FC<InstructionTemplateProps> = ({
           />
         )
       
-      case 'testing':
-        const activeTemplate = getActiveTemplate()
-        return activeTemplate ? (          <VariableSubstitution
-            template={activeTemplate}
-            onPreviewUpdate={() => {}} // No longer needed
-          />
-        ) : (
-          <div className="text-center py-8">
-            <div className="text-gray-400 mb-2">No active template selected</div>
-            <button onClick={() => setViewMode('presets')} className="btn-primary">
-              Select Template
-            </button>
-          </div>
-        )
+        case 'testing': {
+          const activeTemplate = getActiveTemplate()
+          return activeTemplate ? (
+            <VariableSubstitution
+              template={activeTemplate}
+              onPreviewUpdate={() => {}}
+            />
+          ) : (
+            <div className="text-center py-8">
+              <div className="text-gray-400 mb-2">No active template selected</div>
+              <button onClick={() => setViewMode('presets')} className="btn-primary">
+                Select Template
+              </button>
+            </div>
+          )
+        }
       
       default:
         return null

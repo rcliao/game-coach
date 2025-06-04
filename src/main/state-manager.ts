@@ -191,7 +191,7 @@ class StateManager {
       console.log('StateManager: Settings loaded from disk')
         // Broadcast the loaded settings to any already-connected windows
       this.broadcastStateUpdate()
-    } catch (error: any) {
+    } catch (error: unknown) {
       if (error.code === 'ENOENT') {
         console.log('StateManager: No saved settings found, using defaults')
       } else {

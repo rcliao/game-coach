@@ -1,29 +1,14 @@
 import type { GameWindow, GameDetectionResult } from '../../shared/types'
+import {
+  RAVENSWATCH_IDENTIFIERS,
+  extractExecutableName,
+  calculateConfidence,
+} from './game-detector-utils'
 
 // Re-export for backwards compatibility
 export type { GameWindow, GameDetectionResult }
 
-export class GameDetectorService {  private readonly RAVENSWATCH_IDENTIFIERS = [
-    'Ravenswatch',
-    'ravenswatch.exe',
-    'Ravenswatch.exe',
-    'RavenswatchGame',
-    'RAVENSWATCH',
-    'ravenswatch',
-    'Ravenswatch Game',
-    'ravenswatch game',
-    'Ravenswatch - ',
-    'ravenswatch - ',
-    'Ravenswatch.exe - ',
-    'Passtech Games',
-    'passtech',
-    // Steam overlay patterns
-    'Steam - Ravenswatch',
-    'steam - ravenswatch',
-    // Common game launcher patterns
-    'Epic Games - Ravenswatch',
-    'GOG - Ravenswatch',
-  ]
+export class GameDetectorService {
 
   private readonly DETECTION_INTERVAL = 5000 // 5 seconds
   private detectionCallback?: (result: GameDetectionResult) => void
@@ -92,10 +77,10 @@ export class GameDetectorService {  private readonly RAVENSWATCH_IDENTIFIERS = [
         gameWindow: {
           id: gameSource.id,
           name: gameSource.name,
-          executable: this.extractExecutableName(gameSource.name),
+          executable: extractExecutableName(gameSource.name),
           isActive: true, // Assume active if in capture sources
         },
-        confidence: this.calculateConfidence(gameSource.name),
+        confidence: calculateConfidence(gameSource.name),
         detectionMethod: 'capture-source',
       }
       console.log('GameDetector: Detection result:', result)
@@ -141,13 +126,13 @@ export class GameDetectorService {  private readonly RAVENSWATCH_IDENTIFIERS = [
   }
   private findGameInSources(sources: any[]): any | null {
     console.log('GameDetector: Searching for Ravenswatch in sources...')
-    console.log('GameDetector: Looking for identifiers:', this.RAVENSWATCH_IDENTIFIERS)
+    console.log('GameDetector: Looking for identifiers:', RAVENSWATCH_IDENTIFIERS)
     
     const found = sources.find(source => {
       const name = source.name.toLowerCase()
       console.log('GameDetector: Checking source:', source.name)
       
-      const matches = this.RAVENSWATCH_IDENTIFIERS.some(identifier => {
+      const matches = RAVENSWATCH_IDENTIFIERS.some(identifier => {
         const match = name.includes(identifier.toLowerCase())
         if (match) {
           console.log('GameDetector: MATCH FOUND!', identifier, 'in', source.name)
@@ -167,28 +152,6 @@ export class GameDetectorService {  private readonly RAVENSWATCH_IDENTIFIERS = [
     return found || null
   }
 
-  private extractExecutableName(windowName: string): string {
-    // Extract executable name from window title
-    for (const identifier of this.RAVENSWATCH_IDENTIFIERS) {
-      if (windowName.toLowerCase().includes(identifier.toLowerCase())) {
-        return identifier
-      }
-    }
-    return 'unknown'
-  }
-
-  private calculateConfidence(windowName: string): number {
-    const name = windowName.toLowerCase()
-    
-    // Exact match
-    if (name === 'ravenswatch') return 1.0
-    
-    // Partial matches
-    if (name.includes('ravenswatch')) return 0.9
-    if (name.includes('raven')) return 0.6
-    
-    return 0.3
-  }
 
   public getCurrentDetection(): GameDetectionResult | undefined {
     return this.lastDetection
@@ -208,7 +171,7 @@ export class GameDetectorService {  private readonly RAVENSWATCH_IDENTIFIERS = [
       const sources = await this.getCaptureSource()
       const foundSources = sources.filter(source => {
         const name = source.name.toLowerCase()
-        return this.RAVENSWATCH_IDENTIFIERS.some(identifier =>
+        return RAVENSWATCH_IDENTIFIERS.some(identifier =>
           name.includes(identifier.toLowerCase())
         )
       })
@@ -216,7 +179,7 @@ export class GameDetectorService {  private readonly RAVENSWATCH_IDENTIFIERS = [
       return {
         availableSources: sources.map((s: any) => ({ id: s.id, name: s.name })),
         foundSources: foundSources.map((s: any) => ({ id: s.id, name: s.name })),
-        identifiers: this.RAVENSWATCH_IDENTIFIERS,
+        identifiers: RAVENSWATCH_IDENTIFIERS,
         lastDetection: this.lastDetection
       }
     } catch (error) {
@@ -224,7 +187,7 @@ export class GameDetectorService {  private readonly RAVENSWATCH_IDENTIFIERS = [
       return {
         availableSources: [],
         foundSources: [],
-        identifiers: this.RAVENSWATCH_IDENTIFIERS,
+        identifiers: RAVENSWATCH_IDENTIFIERS,
         lastDetection: this.lastDetection
       }
     }

@@ -16,7 +16,6 @@ export const AnalysisEngine: React.FC<AnalysisEngineProps> = ({ isEnabled }) => 
     gameDetection,
     selectedSourceId,
     setCaptureActive,
-    isAnalyzing,
     setAnalyzing,
     setLastAnalysis,
     addAdvice,

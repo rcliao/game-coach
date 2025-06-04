@@ -39,7 +39,6 @@ const PositionTester: React.FC<PositionTesterProps> = ({ settings, onUpdate }) =
     if (!overlayRef.current || !testAreaRef.current) return
     
     setIsDragging(true)
-    const rect = testAreaRef.current.getBoundingClientRect()
     const overlayRect = overlayRef.current.getBoundingClientRect()
     setDragOffset({
       x: e.clientX - overlayRect.left,
