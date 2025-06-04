@@ -1,5 +1,5 @@
 // Game template loading service
-import type { GameTemplate, HUDRegion } from '@shared/types'
+import type { HUDRegion } from '@shared/types'
 
 export interface RavenswatchTemplate {
   gameInfo: {
@@ -70,32 +70,28 @@ export class GameTemplateService {
       },
       hudRegions: {
         health: {
-          x: 50,
-          y: 50,
-          width: 200,
-          height: 50,
-          description: 'Player health bar location'
+          name: 'health',
+          coordinates: { x: 50, y: 50, width: 200, height: 50 },
+          priority: 'high',
+          analysisType: 'status'
         },
         mana: {
-          x: 50,
-          y: 100,
-          width: 200,
-          height: 30,
-          description: 'Player mana/energy bar location'
+          name: 'mana',
+          coordinates: { x: 50, y: 100, width: 200, height: 30 },
+          priority: 'medium',
+          analysisType: 'status'
         },
         inventory: {
-          x: 1100,
-          y: 600,
-          width: 180,
-          height: 180,
-          description: 'Inventory panel location'
+          name: 'inventory',
+          coordinates: { x: 1100, y: 600, width: 180, height: 180 },
+          priority: 'low',
+          analysisType: 'items'
         },
         minimap: {
-          x: 1150,
-          y: 50,
-          width: 130,
-          height: 130,
-          description: 'Minimap location'
+          name: 'minimap',
+          coordinates: { x: 1150, y: 50, width: 130, height: 130 },
+          priority: 'low',
+          analysisType: 'navigation'
         }
       },
       analysisPrompts: {

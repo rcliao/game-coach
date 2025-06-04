@@ -21,7 +21,8 @@
       "@main/*": ["src/main/*"],
       "@renderer/*": ["src/renderer/*"],
       "@shared/*": ["src/shared/*"]
-    }
+    },
+    "types": ["vitest/globals"]
   },
   "include": [
     "src/renderer/**/*",

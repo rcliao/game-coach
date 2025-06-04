@@ -66,28 +66,17 @@ interface GameCoachState {
 }
 
 // Helper: Sync state to overlay if in main window
-function syncStateToOverlayIfMain(get: any) {
-  if (window?.electronAPI?.syncStateToOverlay && window.location.hash !== '#overlay') {
-    const state = get();
-    window.electronAPI.syncStateToOverlay({
-      gameDetection: state.gameDetection,
-      gameState: state.gameState,
-      isAnalyzing: state.isAnalyzing,
-      lastAnalysis: state.lastAnalysis,
-    });
-  }
-}
 
 export const useGameCoachStore = create<GameCoachState>()(
   subscribeWithSelector((set, get) => ({    // Initial settings
-    settings: {
-      llmProvider: 'openai',
-      openaiApiKey: '',
-      geminiApiKey: '',
-      overlayEnabled: true,
-      ttsEnabled: false,
-      adviceFrequency: 5,
-      overlayPosition: { x: 20, y: 20 },
+      settings: {
+        llmProvider: 'openai',
+        openaiApiKey: '',
+        geminiApiKey: '',
+        overlayEnabled: true,
+        ttsEnabled: false,
+        adviceFrequency: 5,
+        overlayPosition: { x: 20, y: 20 },
       // Phase 3: Advanced TTS Settings
       ttsVoice: 'default',
       ttsSpeed: 1.0,
@@ -101,9 +90,45 @@ export const useGameCoachStore = create<GameCoachState>()(
       autoHideDelay: 8,
       // Phase 3: Performance Settings
       frameProcessingQuality: 'medium',
-      enableHUDRegionDetection: true,
-      maxAdviceHistory: 50,
-    },
+        enableHUDRegionDetection: true,
+        maxAdviceHistory: 50,
+        customInstructions: {
+          systemPrompt: '',
+          gameSpecificPrompts: {},
+          activeTemplate: '',
+          enableVariableSubstitution: true,
+          customTemplates: [],
+        },
+        captureSettings: {
+          selectedSource: null,
+          region: null,
+          quality: 'medium',
+          frameRate: 30,
+          compression: 80,
+          autoDetectGames: true,
+        },
+        overlayTesting: {
+          testPosition: { x: 100, y: 100 },
+          testSize: { width: 300, height: 100 },
+          testDuration: 5000,
+          testStyle: {
+            backgroundColor: 'rgba(0, 0, 0, 0.8)',
+            textColor: 'white',
+            fontSize: 14,
+            borderRadius: 8,
+            padding: 16,
+          },
+          enableMultiMonitor: false,
+          savedPositions: [],
+        },
+        setupProgress: {
+          isComplete: false,
+          completedSteps: [],
+          setupStartTime: 0,
+          setupCompletionTime: 0,
+          firstSessionComplete: false,
+        },
+      },
 
     updateSettings: (newSettings) =>
       set((state) => ({
@@ -252,7 +277,6 @@ export const useGameCoachStore = create<GameCoachState>()(
     },
     setLastAnalysis: (analysis) => {
       set({ lastAnalysis: analysis })
-      syncStateToOverlayIfMain(get);
     },
 
     // Game detection initialization
@@ -260,7 +284,6 @@ export const useGameCoachStore = create<GameCoachState>()(
     gameDetection: null,
     setGameDetection: (detection) => {
       set({ gameDetection: detection })
-      syncStateToOverlayIfMain(get);
     },    startGameDetection: () => {
       console.log('Store: startGameDetection() called')
       const { gameDetector, updateGameState } = get()

@@ -26,8 +26,8 @@ export class TTSService {
   private async initializeVoices(): Promise<void> {
     return new Promise((resolve) => {
       const loadVoices = () => {
-        const speechVoices = this.synthesis.getVoices()
-        this.voices = speechVoices.map(voice => ({
+        const available = this.synthesis.getVoices()
+        this.voices = available.map(voice => ({
           name: voice.name,
           lang: voice.lang,
           default: voice.default
@@ -37,7 +37,7 @@ export class TTSService {
       }
 
       // Chrome loads voices asynchronously
-      if (speechVoices.length > 0) {
+      if (this.synthesis.getVoices().length > 0) {
         loadVoices()
       } else {
         this.synthesis.addEventListener('voiceschanged', loadVoices, { once: true })

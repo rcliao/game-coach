@@ -146,10 +146,16 @@ export const useSyncGameCoachStore = create<SyncGameCoachState>()(
       overlayTesting: {
         testPosition: { x: 100, y: 100 },
         testSize: { width: 300, height: 100 },
-        testDuration: 5,
-        testStyle: 'dark',
+        testDuration: 5000,
+        testStyle: {
+          backgroundColor: 'rgba(0, 0, 0, 0.8)',
+          textColor: 'white',
+          fontSize: 14,
+          borderRadius: 8,
+          padding: 16,
+        },
         enableMultiMonitor: false,
-        savedPositions: []
+        savedPositions: [],
       },
       // V1: Setup Progress defaults
       setupProgress: {

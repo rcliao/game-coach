@@ -1,7 +1,12 @@
 import { BrowserWindow, ipcMain, app } from 'electron'
 import * as path from 'path'
 import * as fs from 'fs/promises'
-import type { AppSettings, GameState, Advice, GameDetectionResult } from '../shared/types'
+import type {
+  AppSettings,
+  GameState,
+  Advice,
+  GameDetectionResult,
+} from '../shared/types'
 
 // Centralized state interface for the main process
 interface GlobalState {
@@ -13,13 +18,22 @@ interface GlobalState {
   isOverlayVisible: boolean
 }
 
-class StateManager {
+export interface StateManagerOptions {
+  enableIPC?: boolean
+  loadSettings?: boolean
+}
+
+export class StateManager {
   private state: GlobalState
   private mainWindow: BrowserWindow | null = null
   private overlayWindow: BrowserWindow | null = null
   private listeners: Set<(state: GlobalState) => void> = new Set()
+  private enableIPC: boolean
+  private loadSettings: boolean
 
-  constructor() {
+  constructor(options: StateManagerOptions = {}) {
+    this.enableIPC = options.enableIPC !== false
+    this.loadSettings = options.loadSettings !== false
     this.state = {
       gameDetection: null,
       gameState: {
@@ -69,10 +83,16 @@ class StateManager {
         overlayTesting: {
           testPosition: { x: 100, y: 100 },
           testSize: { width: 300, height: 100 },
-          testDuration: 5,
-          testStyle: 'dark',
+          testDuration: 5000,
+          testStyle: {
+            backgroundColor: 'rgba(0, 0, 0, 0.8)',
+            textColor: 'white',
+            fontSize: 14,
+            borderRadius: 8,
+            padding: 16,
+          },
           enableMultiMonitor: false,
-          savedPositions: []
+          savedPositions: [],
         },
         // V1: Setup Progress defaults
         setupProgress: {
@@ -86,8 +106,12 @@ class StateManager {
       isOverlayVisible: false,
     }
 
-    this.setupIPCHandlers()
-    this.loadSettingsFromDisk()
+    if (this.enableIPC) {
+      this.setupIPCHandlers()
+    }
+    if (this.loadSettings) {
+      this.loadSettingsFromDisk()
+    }
   }
 
   // Window management
@@ -192,10 +216,11 @@ class StateManager {
         // Broadcast the loaded settings to any already-connected windows
       this.broadcastStateUpdate()
     } catch (error: unknown) {
-      if (error.code === 'ENOENT') {
+      const err = error as NodeJS.ErrnoException
+      if (err.code === 'ENOENT') {
         console.log('StateManager: No saved settings found, using defaults')
       } else {
-        console.error('StateManager: Failed to load settings:', error)
+        console.error('StateManager: Failed to load settings:', err)
       }
     }
   }
@@ -256,38 +281,38 @@ class StateManager {
     })
 
     // State setters
-    ipcMain.handle('state-set-game-detection', (event, detection: GameDetectionResult | null) => {
+    ipcMain.handle('state-set-game-detection', (_event, detection: GameDetectionResult | null) => {
       this.setGameDetection(detection)
       return { success: true }
     })
 
-    ipcMain.handle('state-set-game-state', (event, gameState: Partial<GameState>) => {
+    ipcMain.handle('state-set-game-state', (_event, gameState: Partial<GameState>) => {
       this.setGameState(gameState)
       return { success: true }
     })
 
-    ipcMain.handle('state-set-analyzing', (event, analyzing: boolean) => {
+    ipcMain.handle('state-set-analyzing', (_event, analyzing: boolean) => {
       this.setAnalyzing(analyzing)
       return { success: true }
     })
 
-    ipcMain.handle('state-set-last-analysis', (event, analysis: Advice | null) => {
+    ipcMain.handle('state-set-last-analysis', (_event, analysis: Advice | null) => {
       this.setLastAnalysis(analysis)
       return { success: true }
     })
 
-    ipcMain.handle('state-set-settings', (event, settings: Partial<AppSettings>) => {
+    ipcMain.handle('state-set-settings', (_event, settings: Partial<AppSettings>) => {
       this.setSettings(settings)
       return { success: true }
     })
 
-    ipcMain.handle('state-set-overlay-visible', (event, visible: boolean) => {
+    ipcMain.handle('state-set-overlay-visible', (_event, visible: boolean) => {
       this.setOverlayVisible(visible)
       return { success: true }
     })
 
     // Bulk state update
-    ipcMain.handle('state-update-bulk', (event, updates: Partial<GlobalState>) => {
+    ipcMain.handle('state-update-bulk', (_event, updates: Partial<GlobalState>) => {
       if (updates.gameDetection !== undefined) {
         this.setGameDetection(updates.gameDetection)
       }
@@ -315,3 +340,5 @@ class StateManager {
 
 // Export singleton instance
 export const stateManager = new StateManager()
+
+export default StateManager
