@@ -1,5 +1,6 @@
 // Type definitions for the renderer process
 export * from '@shared/types'
+import type { ScreenSource, Advice, GameState, AppSettings } from '@shared/types'
 
 // Additional renderer-specific types
 export interface UIState {

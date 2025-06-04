@@ -54,9 +54,15 @@ export interface AppSettings {
     testPosition: { x: number; y: number }
     testSize: { width: number; height: number }
     testDuration: number
-    testStyle: string
+    testStyle: {
+      backgroundColor: string
+      textColor: string
+      fontSize: number
+      borderRadius: number
+      padding: number
+    }
     enableMultiMonitor: boolean
-    savedPositions: Array<{ name: string; position: { x: number; y: number } }>
+    savedPositions: Array<{ name: string; x: number; y: number; timestamp: number }>
   }
   // V1: Setup Progress
   setupProgress: {

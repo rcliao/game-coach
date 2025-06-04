@@ -8,6 +8,7 @@ describe('VariableSubstitution component', () => {
   const template: InstructionTemplate = {
     id: 't1',
     name: 'Test Template',
+    description: 'desc',
     category: 'general',
     systemPrompt: 'Context: ${gameContext}\nStatus: ${playerStatus}',
     variables: { gameContext: 'Game context', playerStatus: 'Player status' },
