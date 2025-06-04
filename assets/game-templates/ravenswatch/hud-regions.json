@@ -1,0 +1,77 @@
+{
+  "gameInfo": {
+    "name": "Ravenswatch",
+    "processName": "Ravenswatch.exe",
+    "windowTitle": "Ravenswatch",
+    "genre": "action-rpg",
+    "developer": "Passtech Games"
+  },
+  "hudRegions": {
+    "health": {
+      "x": 50,
+      "y": 50,
+      "width": 200,
+      "height": 50,
+      "description": "Player health bar location"
+    },
+    "mana": {
+      "x": 50,
+      "y": 100,
+      "width": 200,
+      "height": 30,
+      "description": "Player mana/energy bar location"
+    },
+    "inventory": {
+      "x": 1100,
+      "y": 600,
+      "width": 180,
+      "height": 180,
+      "description": "Inventory panel location"
+    },
+    "minimap": {
+      "x": 1150,
+      "y": 50,
+      "width": 130,
+      "height": 130,
+      "description": "Minimap location"
+    },
+    "skills": {
+      "x": 500,
+      "y": 650,
+      "width": 300,
+      "height": 80,
+      "description": "Skill bar location"
+    }
+  },
+  "analysisAreas": {
+    "combat": {
+      "regions": ["health", "mana", "skills"],
+      "priority": "high",
+      "description": "Areas to analyze during combat"
+    },
+    "exploration": {
+      "regions": ["minimap", "inventory"],
+      "priority": "medium",
+      "description": "Areas to analyze during exploration"
+    },
+    "inventory": {
+      "regions": ["inventory"],
+      "priority": "low",
+      "description": "Areas to analyze when managing inventory"
+    }
+  },
+  "gameStates": {
+    "combat": {
+      "indicators": ["low_health", "enemy_nearby", "skill_ready"],
+      "advice_categories": ["retreat", "attack", "use_skill"]
+    },
+    "exploration": {
+      "indicators": ["new_area", "loot_available", "path_options"],
+      "advice_categories": ["direction", "loot", "secrets"]
+    },
+    "inventory": {
+      "indicators": ["full_inventory", "upgrade_available", "rare_item"],
+      "advice_categories": ["equipment", "consumables", "optimization"]
+    }
+  }
+}

@@ -1,0 +1,41 @@
+{
+  "systemPrompt": "You are an expert Ravenswatch gaming coach. Analyze the provided gameplay screenshot and provide brief, actionable advice to help the player improve their performance. Focus on immediate tactical decisions and strategic opportunities.",
+  "basePrompt": "Analyze this Ravenswatch gameplay screenshot and provide one specific piece of advice (max 50 words). Consider the player's health, mana, current situation, and immediate threats or opportunities. Respond in JSON format with: {\"advice\": \"your advice\", \"category\": \"combat|exploration|items|general\", \"confidence\": 0.0-1.0, \"reasoning\": \"brief explanation\"}",
+  "contextPrompts": {
+    "combat": {
+      "prompt": "Focus on combat tactics: Should the player attack, retreat, use abilities, or reposition? Look for enemy positions, player health/mana, and available skills.",
+      "keywords": ["health", "enemy", "attack", "retreat", "skill", "ability", "damage"]
+    },
+    "exploration": {
+      "prompt": "Focus on exploration decisions: Which direction should the player go? Are there secrets, loot, or important areas to investigate?",
+      "keywords": ["path", "direction", "loot", "secret", "area", "explore", "door"]
+    },
+    "items": {
+      "prompt": "Focus on inventory and item management: Should the player pick up items, use consumables, or upgrade equipment?",
+      "keywords": ["inventory", "item", "equipment", "upgrade", "potion", "consumable"]
+    },
+    "general": {
+      "prompt": "Provide general strategic advice about the current game state, objectives, or overall approach.",
+      "keywords": ["objective", "strategy", "progress", "goal", "next"]
+    }
+  },
+  "adviceTemplates": {
+    "lowHealth": "Your health is low ({health}%). Consider retreating to a safe area or using a healing item.",
+    "enemyNearby": "Enemy detected nearby. Prepare for combat or consider stealth approach.",
+    "skillReady": "Your {skill} ability is ready. Use it strategically in the next encounter.",
+    "lootAvailable": "Valuable loot spotted. Check your inventory space before collecting.",
+    "newArea": "Entering new area. Take time to observe surroundings and plan your approach.",
+    "fullInventory": "Inventory is full. Consider dropping or using items before collecting more loot."
+  },
+  "responseFormat": {
+    "maxLength": 50,
+    "required_fields": ["advice", "category", "confidence"],
+    "optional_fields": ["reasoning"],
+    "confidence_threshold": 0.7
+  },
+  "gameSpecific": {
+    "characters": ["Red Riding Hood", "Snow White", "The Pied Piper", "Beowulf", "Aladdin"],
+    "mechanics": ["fairy_tale_powers", "nightmare_creatures", "time_of_day", "reverie_mode"],
+    "objectives": ["survive_until_dawn", "defeat_nightmares", "collect_reverie", "upgrade_abilities"]
+  }
+}
