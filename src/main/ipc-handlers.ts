@@ -1,4 +1,4 @@
-import { ipcMain, desktopCapturer } from 'electron'
+import { ipcMain } from 'electron'
 import * as fs from 'fs/promises'
 import * as path from 'path'
 import { app } from 'electron'
