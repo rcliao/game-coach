@@ -5,6 +5,20 @@ import { rendererScreenCapture } from '../services/screen-capture-renderer'
 import { gameTemplateService } from '../services/game-template-service'
 import { ttsService } from '../services/tts-service'
 
+export const detectUrgentAdvice = (advice: string, confidence: number): boolean => {
+  if (confidence < 0.7) return false
+
+  const urgentKeywords = [
+    'danger', 'urgent', 'immediately', 'now', 'quickly', 'fast',
+    'critical', 'low health', 'low hp', 'dying', 'escape', 'run',
+    'dodge', 'avoid', 'move', 'retreat', 'heal', 'potion',
+    'boss', 'elite', 'powerful enemy', 'dangerous'
+  ]
+
+  const lowerAdvice = advice.toLowerCase()
+  return urgentKeywords.some(keyword => lowerAdvice.includes(keyword))
+}
+
 interface AnalysisEngineProps {
   isEnabled: boolean
 }
@@ -51,21 +65,7 @@ export const AnalysisEngine: React.FC<AnalysisEngineProps> = ({ isEnabled }) => 
     }
   }, [])
 
-  const detectUrgentAdvice = useCallback((advice: string, confidence: number): boolean => {
-    // High confidence threshold for urgency
-    if (confidence < 0.7) return false
-    
-    // Keywords that indicate urgent situations
-    const urgentKeywords = [
-      'danger', 'urgent', 'immediately', 'now', 'quickly', 'fast',
-      'critical', 'low health', 'low hp', 'dying', 'escape', 'run',
-      'dodge', 'avoid', 'move', 'retreat', 'heal', 'potion',
-      'boss', 'elite', 'powerful enemy', 'dangerous'
-    ]
-    
-    const lowerAdvice = advice.toLowerCase()
-    return urgentKeywords.some(keyword => lowerAdvice.includes(keyword))
-  }, [])
+  const detectUrgentAdviceMemo = useCallback(detectUrgentAdvice, [])
 
   // Fixed performAnalysis function to prevent infinite loop
   const performAnalysis = useCallback(async () => {
@@ -227,7 +227,7 @@ export const AnalysisEngine: React.FC<AnalysisEngineProps> = ({ isEnabled }) => 
       // TTS functionality
       if (settings.ttsEnabled && result.advice) {
         // Determine if advice is urgent based on keywords and confidence
-        const isUrgent = detectUrgentAdvice(result.advice, result.confidence)
+        const isUrgent = detectUrgentAdviceMemo(result.advice, result.confidence)
         
         // Only speak if not in "urgent only" mode, or if advice is urgent
         if (!settings.ttsOnlyUrgent || isUrgent) {
@@ -258,7 +258,7 @@ export const AnalysisEngine: React.FC<AnalysisEngineProps> = ({ isEnabled }) => 
       setIsLocallyAnalyzing(false)
       setAnalyzing(false)
     }
-  }, [llmService, selectedSourceId, isLocallyAnalyzing, setAnalyzing, setLastAnalysis, addAdvice, settings, setLastCaptureTime, captureFrame, detectUrgentAdvice])
+  }, [llmService, selectedSourceId, isLocallyAnalyzing, setAnalyzing, setLastAnalysis, addAdvice, settings, setLastCaptureTime, captureFrame, detectUrgentAdviceMemo])
 
   const stopAnalysisLoop = useCallback(() => {
     console.log('AnalysisEngine: stopAnalysisLoop() called', {
