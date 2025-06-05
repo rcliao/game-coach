@@ -3,6 +3,7 @@ import { subscribeWithSelector } from 'zustand/middleware'
 import type { AppSettings, GameState, Advice } from '@shared/types'
 import { LLMService, type LLMConfig, type AnalysisResponse } from '../services/llm-service'
 import { GameDetectorService, type GameDetectionResult } from '../services/game-detector'
+import { type StateClient, ElectronStateClient } from '../ipc/state-client'
 
 interface SyncGameCoachState {
   // Core state - synchronized with main process
@@ -95,8 +96,9 @@ interface SyncGameCoachState {
   setError: (error: string | null) => void
 }
 
-export const useSyncGameCoachStore = create<SyncGameCoachState>()(
-  subscribeWithSelector((set, get) => ({    // Initial state
+export function createSyncGameCoachStore(client: StateClient = new ElectronStateClient()) {
+  return create<SyncGameCoachState>()(
+    subscribeWithSelector((set, get) => ({    // Initial state
     gameDetection: null,
     gameState: {
       isRavenswatchDetected: false,
@@ -204,7 +206,7 @@ export const useSyncGameCoachStore = create<SyncGameCoachState>()(
       
       try {
         // Get current state from main process
-        const currentState = await window.electronAPI.stateGetCurrent()
+        const currentState = await client.stateGetCurrent()
         console.log('SyncStore: Received current state from main:', currentState)
         
         // Update local state to match main process
@@ -218,7 +220,7 @@ export const useSyncGameCoachStore = create<SyncGameCoachState>()(
         })
 
         // Subscribe to state updates from main process
-        const unsubscribe = window.electronAPI.onStateUpdated((newState) => {
+        const unsubscribe = client.onStateUpdated((newState) => {
           console.log('SyncStore: Received state update from main:', newState)
           set({
             gameDetection: newState.gameDetection,
@@ -244,7 +246,7 @@ export const useSyncGameCoachStore = create<SyncGameCoachState>()(
       const { gameDetection, gameState, isAnalyzing, lastAnalysis, settings, isOverlayVisible } = get()
       
       try {
-        await window.electronAPI.stateUpdateBulk({
+        await client.stateUpdateBulk({
           gameDetection,
           gameState,
           isAnalyzing,
@@ -262,7 +264,7 @@ export const useSyncGameCoachStore = create<SyncGameCoachState>()(
     setGameDetection: async (detection: GameDetectionResult | null) => {
       console.log('SyncStore: Setting game detection:', detection)
       try {
-        await window.electronAPI.stateSetGameDetection(detection)
+        await client.stateSetGameDetection(detection)
         // State will be updated via the event listener
       } catch (error) {
         console.error('SyncStore: Failed to set game detection:', error)
@@ -273,7 +275,7 @@ export const useSyncGameCoachStore = create<SyncGameCoachState>()(
     setGameState: async (gameState: Partial<GameState>) => {
       console.log('SyncStore: Setting game state:', gameState)
       try {
-        await window.electronAPI.stateSetGameState(gameState)
+        await client.stateSetGameState(gameState)
         // State will be updated via the event listener
       } catch (error) {
         console.error('SyncStore: Failed to set game state:', error)
@@ -284,7 +286,7 @@ export const useSyncGameCoachStore = create<SyncGameCoachState>()(
     setAnalyzing: async (analyzing: boolean) => {
       console.log('SyncStore: Setting analyzing:', analyzing)
       try {
-        await window.electronAPI.stateSetAnalyzing(analyzing)
+        await client.stateSetAnalyzing(analyzing)
         // State will be updated via the event listener
       } catch (error) {
         console.error('SyncStore: Failed to set analyzing:', error)
@@ -295,7 +297,7 @@ export const useSyncGameCoachStore = create<SyncGameCoachState>()(
     setLastAnalysis: async (analysis: AnalysisResponse | null) => {
       console.log('SyncStore: Setting last analysis:', analysis)
       try {
-        await window.electronAPI.stateSetLastAnalysis(analysis)
+        await client.stateSetLastAnalysis(analysis)
         // State will be updated via the event listener
       } catch (error) {
         console.error('SyncStore: Failed to set last analysis:', error)
@@ -306,7 +308,7 @@ export const useSyncGameCoachStore = create<SyncGameCoachState>()(
     updateSettings: async (newSettings: Partial<AppSettings>) => {
       console.log('SyncStore: Updating settings:', Object.keys(newSettings))
       try {
-        await window.electronAPI.stateSetSettings(newSettings)
+        await client.stateSetSettings(newSettings)
         // State will be updated via the event listener
       } catch (error) {
         console.error('SyncStore: Failed to update settings:', error)
@@ -317,7 +319,7 @@ export const useSyncGameCoachStore = create<SyncGameCoachState>()(
     setOverlayVisible: async (visible: boolean) => {
       console.log('SyncStore: Setting overlay visible:', visible)
       try {
-        await window.electronAPI.stateSetOverlayVisible(visible)
+        await client.stateSetOverlayVisible(visible)
         // State will be updated via the event listener
       } catch (error) {
         console.error('SyncStore: Failed to set overlay visible:', error)
@@ -350,7 +352,7 @@ export const useSyncGameCoachStore = create<SyncGameCoachState>()(
     showOverlay: async () => {
       try {
         console.log('SyncStore: Showing overlay')
-        await window.electronAPI.showOverlay()
+        await client.showOverlay()
         // Overlay visibility will be updated via state manager
       } catch (error) {
         console.error('SyncStore: Failed to show overlay:', error)
@@ -361,7 +363,7 @@ export const useSyncGameCoachStore = create<SyncGameCoachState>()(
     hideOverlay: async () => {
       try {
         console.log('SyncStore: Hiding overlay')
-        await window.electronAPI.hideOverlay()
+        await client.hideOverlay()
         // Overlay visibility will be updated via state manager
       } catch (error) {
         console.error('SyncStore: Failed to hide overlay:', error)
@@ -451,4 +453,7 @@ export const useSyncGameCoachStore = create<SyncGameCoachState>()(
     setLoading: (loading: boolean) => set({ isLoading: loading }),
     setError: (error: string | null) => set({ error }),
   }))
-)
+  )
+}
+
+export const useSyncGameCoachStore = createSyncGameCoachStore()
