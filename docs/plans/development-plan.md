@@ -62,7 +62,7 @@ game-coach/
 │   │   │   ├── tts-service.ts  # Text-to-speech
 │   │   │   └── game-detector.ts # Ravenswatch detection
 │   │   ├── stores/
-│   │   │   └── app-store.ts    # Global state
+│   │   │   └── sync-store.ts    # Global state
 │   │   ├── types/
 │   │   │   └── index.ts        # TypeScript definitions
 │   │   ├── App.tsx
