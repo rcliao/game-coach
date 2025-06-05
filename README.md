@@ -134,7 +134,6 @@ game-coach/
 │   │   │   └── screen-capture-renderer.ts # Screen capture
 │   │   ├── stores/             # State management
 │   │   │   ├── sync-store.ts      # Main synchronized store
-│   │   │   └── app-store.ts       # Legacy local store
 │   │   └── types/              # TypeScript definitions
 │   │       ├── index.ts           # Renderer types
 │   │       └── global.d.ts       # Global type declarations
