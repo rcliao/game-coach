@@ -2,6 +2,7 @@
 import { render, screen, fireEvent } from '@testing-library/react'
 import '@testing-library/jest-dom'
 import ConfigPanel from '../src/renderer/components/ConfigPanel'
+import { type ScreenSourceClient } from '../src/renderer/ipc/screen-source-client'
 
 const mockUseStore = vi.fn()
 vi.mock('../src/renderer/stores/sync-store', () => ({
@@ -9,15 +10,15 @@ vi.mock('../src/renderer/stores/sync-store', () => ({
 }))
 
 beforeAll(() => {
-  (window as any).electronAPI = {
-    getCaptureSource: vi.fn().mockResolvedValue([])
-  }
   vi.spyOn(console, 'error').mockImplementation(() => {})
 })
 
 describe('ConfigPanel component', () => {
   it('calls showOverlay when button clicked', () => {
     const showOverlay = vi.fn()
+    const client: ScreenSourceClient = {
+      getCaptureSources: vi.fn().mockResolvedValue([]),
+    }
     mockUseStore.mockReturnValue({
       settings: { overlayEnabled: true, llmProvider: 'openai', openaiApiKey: 'k', geminiApiKey: '' },
       isAnalyzing: false,
@@ -42,7 +43,7 @@ describe('ConfigPanel component', () => {
       llmService: null,
     })
 
-    render(<ConfigPanel />)
+    render(<ConfigPanel screenSourceClient={client} />)
 
     const btn = screen.getByText('Show Overlay')
     fireEvent.click(btn)

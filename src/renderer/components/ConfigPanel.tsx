@@ -1,7 +1,17 @@
 import React from 'react'
 import { useSyncGameCoachStore } from '../stores/sync-store'
+import {
+  type ScreenSourceClient,
+  ElectronScreenSourceClient,
+} from '../ipc/screen-source-client'
 
-const ConfigPanel: React.FC = () => {
+interface ConfigPanelProps {
+  screenSourceClient?: ScreenSourceClient
+}
+
+const ConfigPanel: React.FC<ConfigPanelProps> = ({
+  screenSourceClient = new ElectronScreenSourceClient(),
+}) => {
   const {
     settings,
     isAnalyzing,
@@ -36,7 +46,7 @@ const ConfigPanel: React.FC = () => {
     setIsLoadingSources(true)
     try {
       console.log('ConfigPanel: Loading screen sources...')
-      const sources = await window.electronAPI.getCaptureSource()
+      const sources = await screenSourceClient.getCaptureSources()
       console.log('ConfigPanel: Loaded sources:', sources?.length || 0)
       setScreenSources(sources || [])
     } catch (error) {
