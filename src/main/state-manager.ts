@@ -1,6 +1,6 @@
-import { BrowserWindow, ipcMain, app } from 'electron'
-import * as path from 'path'
-import * as fs from 'fs/promises'
+import { BrowserWindow, ipcMain } from 'electron'
+import type { SettingsStorage } from './settings-storage'
+import { defaultSettingsStorage } from './settings-storage'
 import type {
   AppSettings,
   GameState,
@@ -30,10 +30,12 @@ export class StateManager {
   private listeners: Set<(state: GlobalState) => void> = new Set()
   private enableIPC: boolean
   private loadSettings: boolean
+  private storage: SettingsStorage
 
-  constructor(options: StateManagerOptions = {}) {
+  constructor(options: StateManagerOptions = {}, storage: SettingsStorage = defaultSettingsStorage) {
     this.enableIPC = options.enableIPC !== false
     this.loadSettings = options.loadSettings !== false
+    this.storage = storage
     this.state = {
       gameDetection: null,
       gameState: {
@@ -194,9 +196,7 @@ export class StateManager {
   // Settings persistence methods
   private async saveSettingsToDisk(): Promise<void> {
     try {
-      const userDataPath = app.getPath('userData')
-      const settingsPath = path.join(userDataPath, 'settings.json')
-      await fs.writeFile(settingsPath, JSON.stringify(this.state.settings, null, 2))
+      await this.storage.save(this.state.settings)
       console.log('StateManager: Settings saved to disk')
     } catch (error) {
       console.error('StateManager: Failed to save settings:', error)
@@ -205,22 +205,16 @@ export class StateManager {
 
   private async loadSettingsFromDisk(): Promise<void> {
     try {
-      const userDataPath = app.getPath('userData')
-      const settingsPath = path.join(userDataPath, 'settings.json')
-      const settingsData = await fs.readFile(settingsPath, 'utf-8')
-      const savedSettings = JSON.parse(settingsData)
-      
-      // Merge saved settings with defaults to handle new settings properties
+      const savedSettings = await this.storage.load()
       this.state.settings = { ...this.state.settings, ...savedSettings }
       console.log('StateManager: Settings loaded from disk')
-        // Broadcast the loaded settings to any already-connected windows
+      // Broadcast the loaded settings to any already-connected windows
       this.broadcastStateUpdate()
-    } catch (error: unknown) {
-      const err = error as NodeJS.ErrnoException
-      if (err.code === 'ENOENT') {
+    } catch (error: any) {
+      if (error.code === 'ENOENT') {
         console.log('StateManager: No saved settings found, using defaults')
       } else {
-        console.error('StateManager: Failed to load settings:', err)
+        console.error('StateManager: Failed to load settings:', error)
       }
     }
   }
