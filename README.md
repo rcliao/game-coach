@@ -99,6 +99,12 @@ npm run type-check
 
 # Linting
 npm run lint
+
+# Unit tests
+npm test
+
+# Electron integration tests
+npm run test:electron
 ```
 
 ## 🏗️ Project Structure
@@ -338,6 +344,12 @@ npm run type-check
 
 # Code quality and linting
 npm run lint
+
+# Unit tests
+npm test
+
+# Electron integration tests
+npm run test:electron
 
 # Production build and testing
 npm run build
