@@ -1,5 +1,6 @@
 // Game template loading service
 import type { HUDRegion } from '@shared/types'
+import { TemplateClient, ElectronTemplateClient } from '../ipc/template-client'
 
 export interface RavenswatchTemplate {
   gameInfo: {
@@ -25,6 +26,11 @@ export interface RavenswatchTemplate {
 
 export class GameTemplateService {
   private ravenswatchTemplate: RavenswatchTemplate | null = null
+  private client: TemplateClient
+
+  constructor(client: TemplateClient = new ElectronTemplateClient()) {
+    this.client = client
+  }
 
   public async loadRavenswatchTemplate(): Promise<RavenswatchTemplate> {
     if (this.ravenswatchTemplate) {
@@ -33,7 +39,7 @@ export class GameTemplateService {
 
     try {
       // Load template from main process
-      const template = await window.electronAPI.loadGameTemplate('ravenswatch')
+      const template = await this.client.loadGameTemplate('ravenswatch')
       this.ravenswatchTemplate = template
       return template
     } catch (error) {

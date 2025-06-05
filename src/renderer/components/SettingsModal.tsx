@@ -2,8 +2,24 @@ import React, { useState, useEffect } from 'react'
 import { useSyncGameCoachStore } from '../stores/sync-store'
 import InstructionTemplate from './instructions/InstructionTemplate'
 import OverlayTestSuite from './overlay-testing/OverlayTestSuite'
+import {
+  type ScreenSourceClient,
+  ElectronScreenSourceClient,
+} from '../ipc/screen-source-client'
+import {
+  type TemplateClient,
+  ElectronTemplateClient,
+} from '../ipc/template-client'
 
-const SettingsModal: React.FC = () => {
+interface SettingsModalProps {
+  screenSourceClient?: ScreenSourceClient
+  templateClient?: TemplateClient
+}
+
+const SettingsModal: React.FC<SettingsModalProps> = ({
+  screenSourceClient: _screenSourceClient = new ElectronScreenSourceClient(),
+  templateClient: _templateClient = new ElectronTemplateClient(),
+}) => {
   const {
     settings,
     updateSettings,
@@ -21,12 +37,7 @@ const SettingsModal: React.FC = () => {
   const handleSave = async () => {
     try {
       console.log('SettingsModal: Starting save process...')
-      console.log('SettingsModal: electronAPI exists:', !!window.electronAPI)
-      
-      if (!window.electronAPI) {
-        throw new Error('electronAPI is not available')
-      }
-      
+
       console.log('SettingsModal: Current localSettings:', localSettings)
       
       await updateSettings(localSettings)

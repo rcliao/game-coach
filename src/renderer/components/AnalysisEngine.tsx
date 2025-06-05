@@ -1,9 +1,17 @@
-import React, { useEffect, useState, useCallback } from 'react'
+import React, { useEffect, useState, useCallback, useMemo } from 'react'
 import { useSyncGameCoachStore } from '../stores/sync-store'
 import type { AnalysisRequest } from '../services/llm-service'
 import { rendererScreenCapture } from '../services/screen-capture-renderer'
-import { gameTemplateService } from '../services/game-template-service'
+import { GameTemplateService } from '../services/game-template-service'
 import { ttsService } from '../services/tts-service'
+import {
+  type ScreenSourceClient,
+  ElectronScreenSourceClient,
+} from '../ipc/screen-source-client'
+import {
+  type TemplateClient,
+  ElectronTemplateClient,
+} from '../ipc/template-client'
 
 export const detectUrgentAdvice = (advice: string, confidence: number): boolean => {
   if (confidence < 0.7) return false
@@ -21,9 +29,15 @@ export const detectUrgentAdvice = (advice: string, confidence: number): boolean 
 
 interface AnalysisEngineProps {
   isEnabled: boolean
+  screenSourceClient?: ScreenSourceClient
+  templateClient?: TemplateClient
 }
 
-export const AnalysisEngine: React.FC<AnalysisEngineProps> = ({ isEnabled }) => {
+export const AnalysisEngine: React.FC<AnalysisEngineProps> = ({
+  isEnabled,
+  screenSourceClient = new ElectronScreenSourceClient(),
+  templateClient = new ElectronTemplateClient(),
+}) => {
   const {
     llmService,
     initializeLLMService,
@@ -39,6 +53,7 @@ export const AnalysisEngine: React.FC<AnalysisEngineProps> = ({ isEnabled }) => 
   
   const [analysisInterval, setAnalysisInterval] = useState<NodeJS.Timeout | null>(null)
   const [isLocallyAnalyzing, setIsLocallyAnalyzing] = useState(false)
+  const templateService = useMemo(() => new GameTemplateService(templateClient), [templateClient])
 
   // Helper functions declared with useCallback to prevent infinite loops
   const captureFrame = useCallback(async (): Promise<Buffer | null> => {
@@ -51,10 +66,10 @@ export const AnalysisEngine: React.FC<AnalysisEngineProps> = ({ isEnabled }) => 
       const frameData = await rendererScreenCapture.captureFrame()
       if (frameData) {
         console.log('Successfully captured frame:', frameData.length, 'bytes')
-        
+
         // Save frame for debugging in development
-        if (process.env.NODE_ENV === 'development') {
-          window.electronAPI.captureFrame().catch(console.error)
+        if (process.env.NODE_ENV === 'development' && screenSourceClient.captureFrame) {
+          screenSourceClient.captureFrame().catch(console.error)
         }
       }
       
@@ -117,7 +132,7 @@ export const AnalysisEngine: React.FC<AnalysisEngineProps> = ({ isEnabled }) => 
       console.log('AnalysisEngine: Frame captured successfully, size:', frameData.length, 'bytes')
 
       // Load HUD regions from game template      console.log('AnalysisEngine: Loading HUD regions...')
-      const hudRegions = await gameTemplateService.getHUDRegions()
+      const hudRegions = await templateService.getHUDRegions()
       console.log('AnalysisEngine: HUD regions loaded:', hudRegions.length, 'regions')
 
       // Get custom instructions from settings

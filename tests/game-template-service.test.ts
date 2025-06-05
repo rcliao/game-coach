@@ -1,6 +1,7 @@
 // @vitest-environment jsdom
 import { describe, it, expect, vi } from 'vitest'
 import { GameTemplateService } from '../src/renderer/services/game-template-service'
+import { type TemplateClient } from '../src/renderer/ipc/template-client'
 
 const sampleTemplate = {
   gameInfo: { name: 'R', processName: 'r.exe', windowTitle: 'R', genre: 'g', developer: 'd' },
@@ -9,22 +10,23 @@ const sampleTemplate = {
   gameplayContext: { characterClasses: [], enemyTypes: [], itemCategories: [], statusEffects: [] }
 }
 
-beforeAll(() => {
-  ;(window as any).electronAPI = {
-    loadGameTemplate: vi.fn().mockResolvedValue(sampleTemplate)
-  }
-})
+beforeAll(() => {})
 
 describe('GameTemplateService', () => {
-  it('loads template from electron API', async () => {
-    const svc = new GameTemplateService()
+  it('loads template from client', async () => {
+    const client: TemplateClient = {
+      loadGameTemplate: vi.fn().mockResolvedValue(sampleTemplate),
+    }
+    const svc = new GameTemplateService(client)
     const tpl = await svc.loadRavenswatchTemplate()
     expect(tpl.gameInfo.name).toBe('R')
   })
 
   it('returns default when load fails', async () => {
-    const svc = new GameTemplateService()
-    ;(window as any).electronAPI.loadGameTemplate.mockRejectedValueOnce(new Error('fail'))
+    const client: TemplateClient = {
+      loadGameTemplate: vi.fn().mockRejectedValue(new Error('fail')),
+    }
+    const svc = new GameTemplateService(client)
     const tpl = await svc.loadRavenswatchTemplate()
     expect(tpl.gameInfo.name).toBe('Ravenswatch')
   })
