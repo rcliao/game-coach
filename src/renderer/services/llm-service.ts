@@ -1,5 +1,9 @@
-import OpenAI from 'openai'
-import { GoogleGenerativeAI } from '@google/generative-ai'
+import {
+  type OpenAIClient,
+  type GeminiClient,
+  createDefaultOpenAIClient,
+  createDefaultGeminiClient,
+} from './external-clients'
 
 export interface LLMProvider {
   name: 'openai' | 'gemini'
@@ -34,10 +38,18 @@ export interface AnalysisResponse {
 
 export class LLMService {
   private config: LLMConfig
-  private openaiClient?: OpenAI
-  private geminiClient?: GoogleGenerativeAI
+  private openaiClient?: OpenAIClient
+  private geminiClient?: GeminiClient
   private providers: LLMProvider[] = []
-  constructor(config: LLMConfig) {
+  private openaiFactory: (key: string) => OpenAIClient
+  private geminiFactory: (key: string) => GeminiClient
+  constructor(
+    config: LLMConfig,
+    factories?: {
+      createOpenAI?: (key: string) => OpenAIClient
+      createGemini?: (key: string) => GeminiClient
+    }
+  ) {
     console.log('LLMService: Constructor called with config:', {
       hasOpenAI: !!config.openaiApiKey,
       hasGemini: !!config.geminiApiKey,
@@ -45,6 +57,8 @@ export class LLMService {
     })
     
     this.config = config
+    this.openaiFactory = factories?.createOpenAI ?? createDefaultOpenAIClient
+    this.geminiFactory = factories?.createGemini ?? createDefaultGeminiClient
     try {
       this.initializeProviders()
       console.log('LLMService: Providers initialized successfully')
@@ -60,10 +74,7 @@ export class LLMService {
     if (this.config.openaiApiKey) {
       try {
         console.log('LLMService: Initializing OpenAI client...')
-        this.openaiClient = new OpenAI({
-          apiKey: this.config.openaiApiKey,
-          dangerouslyAllowBrowser: true, // For browser compatibility
-        })
+        this.openaiClient = this.openaiFactory(this.config.openaiApiKey)
 
         this.providers.push({
           name: 'openai',
@@ -78,7 +89,7 @@ export class LLMService {
     if (this.config.geminiApiKey) {
       try {
         console.log('LLMService: Initializing Gemini client...')
-        this.geminiClient = new GoogleGenerativeAI(this.config.geminiApiKey)
+        this.geminiClient = this.geminiFactory(this.config.geminiApiKey)
 
         this.providers.push({
           name: 'gemini',
