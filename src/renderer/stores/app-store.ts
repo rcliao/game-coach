@@ -1,8 +1,8 @@
 import { create } from 'zustand'
 import { subscribeWithSelector } from 'zustand/middleware'
 import type { AppSettings, GameState, Advice, ScreenSource } from '@shared/types'
-import { LLMService, type LLMConfig, type AnalysisResponse } from '../services/llm-service'
-import { GameDetectorService, type GameDetectionResult } from '../services/game-detector'
+import { LLMService, type LLMConfig, type AnalysisResponse, createOpenAIClient, createGeminiClient } from '../services/llm-service'
+import { GameDetectorService, type GameDetectionResult, createDefaultScreenCaptureAPI } from '../services/game-detector'
 
 interface GameCoachState {
   // Settings
@@ -248,7 +248,10 @@ export const useGameCoachStore = create<GameCoachState>()(
 
       try {
         console.log('Store: Creating LLM service instance...')
-        const service = new LLMService(config)
+        const service = new LLMService(config, {
+          openAIFactory: createOpenAIClient,
+          geminiFactory: createGeminiClient,
+        })
         console.log('Store: LLM service created, setting in store...')
         
         set({
@@ -280,7 +283,7 @@ export const useGameCoachStore = create<GameCoachState>()(
     },
 
     // Game detection initialization
-    gameDetector: new GameDetectorService(),
+    gameDetector: new GameDetectorService(createDefaultScreenCaptureAPI()),
     gameDetection: null,
     setGameDetection: (detection) => {
       set({ gameDetection: detection })

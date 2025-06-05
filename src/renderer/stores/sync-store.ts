@@ -1,8 +1,8 @@
 import { create } from 'zustand'
 import { subscribeWithSelector } from 'zustand/middleware'
 import type { AppSettings, GameState, Advice } from '@shared/types'
-import { LLMService, type LLMConfig, type AnalysisResponse } from '../services/llm-service'
-import { GameDetectorService, type GameDetectionResult } from '../services/game-detector'
+import { LLMService, type LLMConfig, type AnalysisResponse, createOpenAIClient, createGeminiClient } from '../services/llm-service'
+import { GameDetectorService, type GameDetectionResult, createDefaultScreenCaptureAPI } from '../services/game-detector'
 
 interface SyncGameCoachState {
   // Core state - synchronized with main process
@@ -196,7 +196,7 @@ export const useSyncGameCoachStore = create<SyncGameCoachState>()(
 
     // Services
     llmService: null,
-    gameDetector: new GameDetectorService(),
+    gameDetector: new GameDetectorService(createDefaultScreenCaptureAPI()),
 
     // Initialize store and sync with main process
     initializeStore: async () => {
@@ -391,7 +391,10 @@ export const useSyncGameCoachStore = create<SyncGameCoachState>()(
           hasOpenAI: !!config.openaiApiKey,
           hasGemini: !!config.geminiApiKey
         })
-        const llmService = new LLMService(config)
+        const llmService = new LLMService(config, {
+          openAIFactory: createOpenAIClient,
+          geminiFactory: createGeminiClient,
+        })
         
         console.log('SyncStore: LLM service created, checking readiness...')
         console.log('SyncStore: LLM service ready:', llmService.isReady())

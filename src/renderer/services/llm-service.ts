@@ -1,6 +1,29 @@
 import OpenAI from 'openai'
 import { GoogleGenerativeAI } from '@google/generative-ai'
 
+export interface OpenAIClient {
+  chat: {
+    completions: {
+      create: (params: any) => Promise<any>
+    }
+  }
+}
+
+export interface GeminiClient {
+  getGenerativeModel: (options: { model: string }) => {
+    generateContent: (parts: any[]) => Promise<{ response: { text: () => string } }>
+  }
+}
+
+export type OpenAIClientFactory = (apiKey: string) => OpenAIClient
+export type GeminiClientFactory = (apiKey: string) => GeminiClient
+
+export const createOpenAIClient: OpenAIClientFactory = (apiKey: string) =>
+  new OpenAI({ apiKey, dangerouslyAllowBrowser: true }) as unknown as OpenAIClient
+
+export const createGeminiClient: GeminiClientFactory = (apiKey: string) =>
+  new GoogleGenerativeAI(apiKey) as unknown as GeminiClient
+
 export interface LLMProvider {
   name: 'openai' | 'gemini'
   analyze: (imageBuffer: Buffer, prompt: string) => Promise<string>
@@ -34,17 +57,28 @@ export interface AnalysisResponse {
 
 export class LLMService {
   private config: LLMConfig
-  private openaiClient?: OpenAI
-  private geminiClient?: GoogleGenerativeAI
+  private openaiClient?: OpenAIClient
+  private geminiClient?: GeminiClient
   private providers: LLMProvider[] = []
-  constructor(config: LLMConfig) {
+  private openAIFactory: OpenAIClientFactory
+  private geminiFactory: GeminiClientFactory
+
+  constructor(
+    config: LLMConfig,
+    factories: {
+      openAIFactory?: OpenAIClientFactory
+      geminiFactory?: GeminiClientFactory
+    } = {}
+  ) {
     console.log('LLMService: Constructor called with config:', {
       hasOpenAI: !!config.openaiApiKey,
       hasGemini: !!config.geminiApiKey,
       provider: config.preferredProvider
     })
-    
+
     this.config = config
+    this.openAIFactory = factories.openAIFactory || createOpenAIClient
+    this.geminiFactory = factories.geminiFactory || createGeminiClient
     try {
       this.initializeProviders()
       console.log('LLMService: Providers initialized successfully')
@@ -60,10 +94,7 @@ export class LLMService {
     if (this.config.openaiApiKey) {
       try {
         console.log('LLMService: Initializing OpenAI client...')
-        this.openaiClient = new OpenAI({
-          apiKey: this.config.openaiApiKey,
-          dangerouslyAllowBrowser: true, // For browser compatibility
-        })
+        this.openaiClient = this.openAIFactory(this.config.openaiApiKey)
 
         this.providers.push({
           name: 'openai',
@@ -74,11 +105,13 @@ export class LLMService {
       } catch (error) {
         console.error('LLMService: Error initializing OpenAI:', error)
       }
-    }    // Initialize Gemini
+    }
+
+    // Initialize Gemini
     if (this.config.geminiApiKey) {
       try {
         console.log('LLMService: Initializing Gemini client...')
-        this.geminiClient = new GoogleGenerativeAI(this.config.geminiApiKey)
+        this.geminiClient = this.geminiFactory(this.config.geminiApiKey)
 
         this.providers.push({
           name: 'gemini',

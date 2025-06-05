@@ -5,6 +5,19 @@ import {
   calculateConfidence,
 } from './game-detector-utils'
 
+export interface ScreenCaptureAPI {
+  getCaptureSource: () => Promise<any[]>
+}
+
+export const createDefaultScreenCaptureAPI = (): ScreenCaptureAPI => ({
+  getCaptureSource: async () => {
+    if (typeof window !== 'undefined' && window.electronAPI?.getCaptureSource) {
+      return window.electronAPI.getCaptureSource()
+    }
+    return []
+  }
+})
+
 // Re-export for backwards compatibility
 export type { GameWindow, GameDetectionResult }
 
@@ -14,6 +27,11 @@ export class GameDetectorService {
   private detectionCallback?: (result: GameDetectionResult) => void
   private detectionTimer?: NodeJS.Timeout
   private lastDetection?: GameDetectionResult
+  private captureAPI: ScreenCaptureAPI
+
+  constructor(captureAPI: ScreenCaptureAPI = createDefaultScreenCaptureAPI()) {
+    this.captureAPI = captureAPI
+  }
   public startDetection(callback: (result: GameDetectionResult) => void) {
     console.log('GameDetector: startDetection() called')
     this.detectionCallback = callback
@@ -96,22 +114,11 @@ export class GameDetectorService {
       confidence: 0,
       detectionMethod: 'capture-source',
     }
-  }  private async getCaptureSource(): Promise<any[]> {
+  }
+
+  private async getCaptureSource(): Promise<any[]> {
     try {
-      console.log('GameDetector: Checking window.electronAPI availability...')
-      if (!window.electronAPI) {
-        console.error('GameDetector: window.electronAPI is not available!')
-        return []
-      }
-      
-      console.log('GameDetector: window.electronAPI found, calling getCaptureSource()...')
-      if (typeof window.electronAPI.getCaptureSource !== 'function') {
-        console.error('GameDetector: window.electronAPI.getCaptureSource is not a function!')
-        return []
-      }
-      
-      console.log('GameDetector: Calling window.electronAPI.getCaptureSource()...')
-      const sources = await window.electronAPI.getCaptureSource()
+      const sources = await this.captureAPI.getCaptureSource()
       console.log('GameDetector: Total available capture sources:', sources?.length || 0)
       console.log('GameDetector: Available capture sources:', sources?.map((s: any) => ({
         id: s.id,
@@ -196,7 +203,7 @@ export class GameDetectorService {
   public async testCaptureSourcesRaw(): Promise<any[]> {
     console.log('GameDetector: Testing raw capture sources...')
     try {
-      const sources = await window.electronAPI.getCaptureSource()
+      const sources = await this.captureAPI.getCaptureSource()
       console.log('GameDetector: Raw electronAPI result:', sources)
       console.log('GameDetector: Source count:', sources?.length || 0)
       
@@ -217,27 +224,11 @@ export class GameDetectorService {
   // Comprehensive diagnostic test
   public async runDiagnostic(): Promise<void> {
     console.log('\n🔍 === GAME DETECTOR DIAGNOSTIC ===')
-    
-    // Test 1: Check electronAPI availability
-    console.log('1. Checking electronAPI availability...')
-    if (!window.electronAPI) {
-      console.error('❌ window.electronAPI is not available!')
-      return
-    }
-    console.log('✅ window.electronAPI is available')
-    
-    // Test 2: Check getCaptureSource method
-    console.log('2. Checking getCaptureSource method...')
-    if (typeof window.electronAPI.getCaptureSource !== 'function') {
-      console.error('❌ window.electronAPI.getCaptureSource is not a function!')
-      return
-    }
-    console.log('✅ window.electronAPI.getCaptureSource is a function')
-    
-    // Test 3: Test IPC call
-    console.log('3. Testing IPC call...')
+
+    // Test 1: Test capture API call
+    console.log('1. Testing capture API call...')
     try {
-      const sources = await window.electronAPI.getCaptureSource()
+      const sources = await this.captureAPI.getCaptureSource()
       console.log('✅ IPC call successful! Got', sources?.length || 0, 'sources')
       
       if (sources && sources.length > 0) {
@@ -251,8 +242,8 @@ export class GameDetectorService {
       return
     }
     
-    // Test 4: Test detection logic
-    console.log('4. Testing detection logic...')
+    // Test 2: Test detection logic
+    console.log('2. Testing detection logic...')
     try {
       const result = await this.detectRavenswatch()
       console.log('✅ Detection logic successful!')
