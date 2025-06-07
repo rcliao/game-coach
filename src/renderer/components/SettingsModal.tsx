@@ -29,7 +29,8 @@ const SettingsModal: React.FC<SettingsModalProps> = ({
     error,
   } = useSyncGameCoachStore()
   const [localSettings, setLocalSettings] = useState(settings)
-  const [activeTab, setActiveTab] = useState<'api' | 'overlay' | 'instructions' | 'testing' | 'tts' | 'performance' | 'general'>('api')// Sync local settings when store settings change
+  const [activeTab, setActiveTab] = useState<'api' | 'overlay' | 'instructions' | 'tts' | 'performance' | 'general'>('api')
+  // Sync local settings when store settings change
   useEffect(() => {
     setLocalSettings(settings)
   }, [settings])
@@ -86,7 +87,6 @@ const SettingsModal: React.FC<SettingsModalProps> = ({
             { id: 'api', label: 'API Keys' },
             { id: 'overlay', label: 'Overlay' },
             { id: 'instructions', label: 'Instructions' },
-            { id: 'testing', label: 'Testing' },
             { id: 'tts', label: 'Text-to-Speech' },
             { id: 'performance', label: 'Performance' },
             { id: 'general', label: 'General' },
@@ -264,21 +264,20 @@ const SettingsModal: React.FC<SettingsModalProps> = ({
                   className="w-full bg-gray-700 border border-gray-600 rounded-md px-3 py-2 text-white focus:outline-none focus:ring-2 focus:ring-primary-500"
                 />
                 <p className="text-xs text-gray-400 mt-1">
-                  Minimum time between advice suggestions                </p>
+                  Minimum time between advice suggestions
+                </p>
               </div>
-            </div>          )}          {/* Instructions Tab */}
+
+              <OverlayTestSuite />
+            </div>
+          )}
+          {/* Instructions Tab */}
           {activeTab === 'instructions' && (
             <div className="h-96 overflow-y-auto p-2">
               <InstructionTemplate />
             </div>
           )}
 
-          {/* Testing Tab */}
-          {activeTab === 'testing' && (
-            <div className="h-96 overflow-y-auto">
-              <OverlayTestSuite />
-            </div>
-          )}
 
           {/* TTS Tab */}
           {activeTab === 'tts' && (

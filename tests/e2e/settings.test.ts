@@ -41,3 +41,15 @@ test('overlay displays in top right by default', async () => {
 
   await electronApp.close()
 })
+
+test('overlay tab shows overlay testing controls', async () => {
+  const electronApp = await launchApp()
+
+  const page = await electronApp.firstWindow()
+  await page.getByRole('button', { name: 'Settings' }).click()
+  await page.getByRole('button', { name: 'Overlay', exact: true }).click()
+
+  await expect(page.getByText('Overlay Testing Suite')).toBeVisible()
+
+  await electronApp.close()
+})
