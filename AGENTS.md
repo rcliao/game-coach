@@ -11,9 +11,10 @@
 ## Testing Requirements
 - **Always write tests** for any new code you introduce.
 - Before committing, run the following commands:
-  - `npm run lint`
-  - `npm run type-check`
-  - `npm test`
+    - `npm run lint`
+    - `npm run type-check`
+    - `npm test`
+    - `npm run test:e2e`
 
 ## Project Structure
 - Follow the directory and file organization described in `README.md`.
