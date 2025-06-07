@@ -11,12 +11,12 @@ npm install --save-dev @playwright/test playwright-electron
 
 The `playwright-electron` package exposes an `_electron` launcher that starts the app with a full Electron context.
 
-## 2. Build the main process
+## 2. Build the application
 
-Playwright launches the compiled Electron app. Run the build step before executing the tests:
+Playwright launches the compiled Electron app. Build both the renderer and main processes before executing the tests:
 
 ```bash
-npm run build:electron
+npm run build
 ```
 
 ## 3. Example test script
@@ -53,7 +53,7 @@ test('update settings from modal', async () => {
 Add a script entry to `package.json`:
 
 ```json
-"test:e2e": "playwright test"
+"test:e2e": "npm run build && xvfb-run -a playwright test"
 ```
 
 Then execute:
