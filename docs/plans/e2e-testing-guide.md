@@ -7,6 +7,7 @@ Playwright can control the Electron process directly which allows interacting wi
 
 ```bash
 npm install --save-dev @playwright/test playwright-electron
+npx playwright install --with-deps
 ```
 
 The `playwright-electron` package exposes an `_electron` launcher that starts the app with a full Electron context.
