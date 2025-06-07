@@ -22,7 +22,7 @@
     "type-check": "tsc --noEmit",
     "test": "vitest run",
     "test:electron": "TS_NODE_COMPILER_OPTIONS='{\"module\":\"CommonJS\"}' xvfb-run -a npx electron-mocha --renderer --require ts-node/register --no-window tests/electron/**/*.ts --no-sandbox"
-    ,"test:e2e": "playwright test"
+    ,"test:e2e": "npm run build && xvfb-run -a playwright test"
   },
   "dependencies": {
     "@google/generative-ai": "^0.2.0",
