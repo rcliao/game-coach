@@ -70,4 +70,20 @@ describe('SettingsModal component', () => {
     fireEvent.click(screen.getAllByText('Cancel')[0])
     expect(setSettingsModalOpen).toHaveBeenCalledWith(false)
   })
+
+  it('renders overlay testing suite within overlay tab', () => {
+    mockUseStore.mockReturnValue({
+      settings,
+      updateSettings: vi.fn(),
+      isSettingsModalOpen: true,
+      setSettingsModalOpen: vi.fn(),
+      isLoading: false,
+      error: null
+    })
+
+    render(<SettingsModal />)
+
+    fireEvent.click(screen.getByText('Overlay'))
+    expect(screen.getByText('OverlayTestSuite')).toBeInTheDocument()
+  })
 })
