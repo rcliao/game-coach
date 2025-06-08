@@ -32,9 +32,20 @@ test('overlay displays in top right by default', async () => {
   const overlayPage = await electronApp.waitForEvent('window', win =>
     win.url().includes('#overlay')
   )
-  const position = await overlayPage.evaluate(() => ({ x: window.screenX, y: window.screenY }))
-  expect(position.y).toBe(20)
-  expect(position.x).toBeGreaterThan(0)
+  const info = await overlayPage.evaluate(() => ({
+    x: window.screenX,
+    y: window.screenY,
+    w: window.outerWidth,
+    h: window.outerHeight,
+    sw: window.screen.width,
+    sh: window.screen.height,
+  }))
+  const expectedX = Math.round(info.sw * 0.9 - info.w / 2)
+  const expectedY = Math.round(info.sh * 0.1 - info.h / 2)
+  const clampedX = Math.max(0, Math.min(info.sw - info.w, expectedX))
+  const clampedY = Math.max(0, Math.min(info.sh - info.h, expectedY))
+  expect(info.x).toBe(clampedX)
+  expect(info.y).toBe(clampedY)
 
   await electronApp.close()
 })

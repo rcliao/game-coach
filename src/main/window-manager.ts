@@ -47,17 +47,36 @@ export class WindowManager {
     return this.mainWindow
   }
 
+  private calculateOverlayPosition(overlayWidth: number, overlayHeight: number) {
+    const { width, height } = screen.getPrimaryDisplay().workAreaSize
+    const { x, y } = this.stateManager.getSettings().overlayPosition
+    const centerX = (width * x) / 100
+    const centerY = (height * y) / 100
+    const posX = Math.max(0, Math.min(width - overlayWidth, Math.round(centerX - overlayWidth / 2)))
+    const posY = Math.max(0, Math.min(height - overlayHeight, Math.round(centerY - overlayHeight / 2)))
+    return { x: posX, y: posY }
+  }
+
+  private moveOverlayWindow() {
+    if (!this.overlayWindow) return
+    const { width, height } = this.overlayWindow.getBounds()
+    const { x, y } = this.calculateOverlayPosition(width, height)
+    this.overlayWindow.setBounds({ x, y })
+  }
+
   createOverlayWindow(): ElectronBrowserWindow {
     if (this.overlayWindow) {
+      this.moveOverlayWindow()
       this.overlayWindow.focus()
       return this.overlayWindow
     }
 
-    const { width } = screen.getPrimaryDisplay().workAreaSize
     const overlayWidth = 300
     const overlayHeight = 150
-    const overlayX = Math.max(0, width - overlayWidth - 20)
-    const overlayY = 20
+    const { x: overlayX, y: overlayY } = this.calculateOverlayPosition(
+      overlayWidth,
+      overlayHeight
+    )
 
     const opts: BrowserWindowConstructorOptions = {
       width: overlayWidth,

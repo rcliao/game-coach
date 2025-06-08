@@ -1,4 +1,4 @@
-import { BrowserWindow, ipcMain } from 'electron'
+import { BrowserWindow, ipcMain, screen } from 'electron'
 import type { SettingsStorage } from './settings-storage'
 import { defaultSettingsStorage } from './settings-storage'
 import type {
@@ -52,7 +52,7 @@ export class StateManager {
         overlayEnabled: true,
         ttsEnabled: false,
         adviceFrequency: 5,
-        overlayPosition: { x: 20, y: 20 },
+        overlayPosition: { x: 90, y: 10 },
         ttsVoice: 'default',
         ttsSpeed: 1.0,
         ttsVolume: 0.8,        ttsOnlyUrgent: false,
@@ -186,6 +186,17 @@ export class StateManager {
     console.log('StateManager: Setting settings:', Object.keys(settings))
     this.state.settings = { ...this.state.settings, ...settings }
     this.broadcastStateUpdate()
+
+    if (settings.overlayPosition && this.overlayWindow) {
+      const { width, height } = screen.getPrimaryDisplay().workAreaSize
+      const bounds = this.overlayWindow.getBounds()
+      const { x, y } = this.state.settings.overlayPosition
+      const centerX = (width * x) / 100
+      const centerY = (height * y) / 100
+      const posX = Math.max(0, Math.min(width - bounds.width, Math.round(centerX - bounds.width / 2)))
+      const posY = Math.max(0, Math.min(height - bounds.height, Math.round(centerY - bounds.height / 2)))
+      this.overlayWindow.setBounds({ x: posX, y: posY })
+    }
     
     // Auto-save settings to disk
     this.saveSettingsToDisk().catch(error => {
