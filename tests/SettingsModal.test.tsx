@@ -86,4 +86,29 @@ describe('SettingsModal component', () => {
     fireEvent.click(screen.getByText('Overlay'))
     expect(screen.getByText('OverlayTestSuite')).toBeInTheDocument()
   })
+
+  it('calls showOverlay when overlay control button clicked', () => {
+    const showOverlay = vi.fn()
+    mockUseStore.mockReturnValue({
+      settings,
+      updateSettings: vi.fn(),
+      isSettingsModalOpen: true,
+      setSettingsModalOpen: vi.fn(),
+      isLoading: false,
+      error: null,
+      isOverlayVisible: false,
+      showOverlay,
+      hideOverlay: vi.fn(),
+      setGameDetection: vi.fn(),
+      setGameState: vi.fn(),
+      setLastAnalysis: vi.fn(),
+      setAnalyzing: vi.fn(),
+    })
+
+    render(<SettingsModal />)
+
+    fireEvent.click(screen.getByText('Overlay'))
+    fireEvent.click(screen.getByText('Show Overlay'))
+    expect(showOverlay).toHaveBeenCalled()
+  })
 })
