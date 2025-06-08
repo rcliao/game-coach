@@ -19,17 +19,17 @@ const baseSettings = {
 }
 
 describe('GameOverlay positioning', () => {
-  it('applies overlayPosition.y to overlay style', () => {
+  it('applies overlayPosition to overlay style', () => {
     mockUseStore.mockReturnValue({
       isOverlayVisible: true,
       lastAnalysis: { advice: 'test', confidence: 0.9, provider: 'test', analysisTime: 10 },
       isAnalyzing: false,
       gameDetection: { isGameRunning: true },
-      settings: { ...baseSettings, overlayPosition: { x: 0, y: 100 } }
+      settings: { ...baseSettings, overlayPosition: { x: 25, y: 75 } }
     })
 
     const { container } = render(<GameOverlay />)
     const overlay = container.querySelector('.animate-slideInRight') as HTMLElement
-    expect(overlay).toHaveStyle('top: 100px')
+    expect(overlay).toHaveStyle({ top: '75%', left: '25%' })
   })
 })

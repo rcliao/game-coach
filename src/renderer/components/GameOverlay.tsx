@@ -65,11 +65,12 @@ const GameOverlay: React.FC = () => {
     >
       {/* Advice Display */}
       {showAdvice && currentAdvice && (
-        <div 
+        <div
           className={`absolute animate-slideInRight ${sizeClass}`}
           style={{
-            top: settings.overlayPosition.y,
-            right: 20
+            top: `${settings.overlayPosition.y}%`,
+            left: `${settings.overlayPosition.x}%`,
+            transform: 'translate(-50%, -50%)'
           }}
         >
           <div className={`${theme.background} rounded-lg shadow-2xl transition-all duration-300`}>
