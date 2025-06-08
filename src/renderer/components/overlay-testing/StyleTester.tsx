@@ -13,6 +13,14 @@ const StyleTester: React.FC<StyleTesterProps> = ({ settings, onUpdate }) => {
   const [isTestActive, setIsTestActive] = useState(false)
   const [testOverlayVisible, setTestOverlayVisible] = useState(false)
 
+  const testStyle = settings.testStyle || {
+    backgroundColor: 'rgba(0, 0, 0, 0.8)',
+    textColor: 'white',
+    fontSize: 14,
+    borderRadius: 8,
+    padding: 16,
+  }
+
   const backgroundPresets = [
     { name: 'Dark', value: 'rgba(0, 0, 0, 0.8)' },
     { name: 'Light', value: 'rgba(255, 255, 255, 0.9)' },
@@ -33,12 +41,12 @@ const StyleTester: React.FC<StyleTesterProps> = ({ settings, onUpdate }) => {
 
   const fontSizePresets = [10, 12, 14, 16, 18, 20, 24, 28, 32]
 
-  const updateStyle = <K extends keyof typeof settings.testStyle>(
+  const updateStyle = <K extends keyof typeof testStyle>(
     key: K,
-    value: typeof settings.testStyle[K]
+    value: typeof testStyle[K]
   ) => {
     onUpdate('testStyle', {
-      ...settings.testStyle,
+      ...testStyle,
       [key]: value
     })
   }
@@ -69,7 +77,7 @@ const StyleTester: React.FC<StyleTesterProps> = ({ settings, onUpdate }) => {
     return `rgba(${Math.round(r)}, ${Math.round(g)}, ${Math.round(b)}, ${a})`
   }
 
-  const currentBg = parseRGBA(settings.testStyle.backgroundColor)
+  const currentBg = parseRGBA(testStyle.backgroundColor)
 
   return (
     <div className="space-y-6">
@@ -89,11 +97,11 @@ const StyleTester: React.FC<StyleTesterProps> = ({ settings, onUpdate }) => {
             <div
               className="transition-all duration-300"
               style={{
-                backgroundColor: settings.testStyle.backgroundColor,
-                color: settings.testStyle.textColor,
-                fontSize: `${settings.testStyle.fontSize}px`,
-                borderRadius: `${settings.testStyle.borderRadius}px`,
-                padding: `${settings.testStyle.padding}px`,
+                backgroundColor: testStyle.backgroundColor,
+                color: testStyle.textColor,
+                fontSize: `${testStyle.fontSize}px`,
+                borderRadius: `${testStyle.borderRadius}px`,
+                padding: `${testStyle.padding}px`,
                 minWidth: '200px',
                 textAlign: 'center'
               }}
@@ -138,7 +146,7 @@ const StyleTester: React.FC<StyleTesterProps> = ({ settings, onUpdate }) => {
               key={preset.name}
               onClick={() => updateStyle('backgroundColor', preset.value)}
               className={`p-2 text-xs rounded border-2 transition-all ${
-                settings.testStyle.backgroundColor === preset.value
+                testStyle.backgroundColor === preset.value
                   ? 'border-primary-400'
                   : 'border-gray-600 hover:border-gray-500'
               }`}
@@ -222,7 +230,7 @@ const StyleTester: React.FC<StyleTesterProps> = ({ settings, onUpdate }) => {
               key={preset.name}
               onClick={() => updateStyle('textColor', preset.value)}
               className={`p-2 text-xs rounded border-2 transition-all ${
-                settings.testStyle.textColor === preset.value
+                testStyle.textColor === preset.value
                   ? 'border-primary-400'
                   : 'border-gray-600 hover:border-gray-500'
               }`}
@@ -249,7 +257,7 @@ const StyleTester: React.FC<StyleTesterProps> = ({ settings, onUpdate }) => {
                 key={size}
                 onClick={() => updateStyle('fontSize', size)}
                 className={`p-2 text-xs rounded ${
-                  settings.testStyle.fontSize === size
+                  testStyle.fontSize === size
                     ? 'bg-primary-600 text-white'
                     : 'bg-gray-700 text-gray-300 hover:bg-gray-600'
                 }`}
@@ -268,12 +276,12 @@ const StyleTester: React.FC<StyleTesterProps> = ({ settings, onUpdate }) => {
             type="range"
             min="0"
             max="20"
-            value={settings.testStyle.borderRadius}
+            value={testStyle.borderRadius}
             onChange={(e) => updateStyle('borderRadius', parseInt(e.target.value))}
             className="w-full"
           />
           <div className="text-xs text-gray-400 text-center mt-1">
-            {settings.testStyle.borderRadius}px
+            {testStyle.borderRadius}px
           </div>
         </div>
       </div>
@@ -287,12 +295,12 @@ const StyleTester: React.FC<StyleTesterProps> = ({ settings, onUpdate }) => {
           type="range"
           min="4"
           max="32"
-          value={settings.testStyle.padding}
+          value={testStyle.padding}
           onChange={(e) => updateStyle('padding', parseInt(e.target.value))}
           className="w-full"
         />
         <div className="text-xs text-gray-400 text-center mt-1">
-          {settings.testStyle.padding}px
+          {testStyle.padding}px
         </div>
       </div>
 
