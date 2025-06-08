@@ -25,7 +25,7 @@ const themeStyles = {
 const sizeStyles = {
   small: 'max-w-xs text-xs p-3',
   medium: 'max-w-sm text-sm p-4',
-  large: 'max-w-md text-base p-5'
+  large: 'max-w-lg text-base p-6'
 }
 
 const GameOverlay: React.FC = () => {

@@ -71,8 +71,8 @@ export class WindowManager {
       return this.overlayWindow
     }
 
-    const overlayWidth = 300
-    const overlayHeight = 150
+    const overlayWidth = 540
+    const overlayHeight = 200
     const { x: overlayX, y: overlayY } = this.calculateOverlayPosition(
       overlayWidth,
       overlayHeight
