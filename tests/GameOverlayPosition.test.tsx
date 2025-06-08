@@ -29,7 +29,9 @@ describe('GameOverlay positioning', () => {
     })
 
     const { container } = render(<GameOverlay />)
-    const overlay = container.querySelector('.animate-slideInRight') as HTMLElement
-    expect(overlay).toHaveStyle({ top: '50%', left: '50%' })
+    const root = container.firstChild as HTMLElement
+    expect(root).toHaveClass('flex')
+    expect(root).toHaveClass('items-center')
+    expect(root).toHaveClass('justify-center')
   })
 })
