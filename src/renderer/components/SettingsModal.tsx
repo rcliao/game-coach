@@ -80,6 +80,10 @@ const SettingsModal: React.FC<SettingsModalProps> = ({
   }
 
   const handleTestAdvice = () => {
+    const originalSize = settings.overlaySize
+    if (originalSize !== 'large') {
+      updateSettings({ overlaySize: 'large' })
+    }
     const testAnalysis = {
       advice:
         'Test advice: Focus on dodging enemy attacks and look for openings to counter-attack.',
@@ -90,6 +94,11 @@ const SettingsModal: React.FC<SettingsModalProps> = ({
       category: 'combat' as const,
     }
     setLastAnalysis(testAnalysis)
+    if (originalSize !== 'large') {
+      setTimeout(() => {
+        updateSettings({ overlaySize: originalSize })
+      }, settings.autoHideDelay * 1000 + 500)
+    }
   }
 
   const handleTestAutomaticFlow = async () => {

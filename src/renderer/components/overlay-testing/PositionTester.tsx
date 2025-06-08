@@ -1,5 +1,6 @@
 import React, { useState, useRef, useEffect } from 'react'
 import { AppSettings } from '../../../shared/types'
+import { useSyncGameCoachStore } from '../../stores/sync-store'
 
 interface PositionTesterProps {
   settings: AppSettings['overlayTesting']
@@ -10,12 +11,31 @@ interface PositionTesterProps {
 }
 
 const PositionTester: React.FC<PositionTesterProps> = ({ settings, onUpdate }) => {
+  const {
+    updateSettings,
+    showOverlay,
+    setLastAnalysis
+  } = useSyncGameCoachStore()
   const [isTestActive, setIsTestActive] = useState(false)
   const [testOverlayVisible, setTestOverlayVisible] = useState(false)
   const testAreaRef = useRef<HTMLDivElement>(null)
   const overlayRef = useRef<HTMLDivElement>(null)
   const [isDragging, setIsDragging] = useState(false)
   const [dragOffset, setDragOffset] = useState({ x: 0, y: 0 })
+
+  const previewPosition = (x: number, y: number) => {
+    updateSettings({ overlayPosition: { x, y } })
+    showOverlay()
+    const previewAnalysis = {
+      advice: 'Position updated',
+      confidence: 1,
+      provider: 'test',
+      analysisTime: 0,
+      timestamp: Date.now(),
+      category: 'general' as const
+    }
+    setLastAnalysis(previewAnalysis)
+  }
 
   const presetPositions = [
     { name: 'Top Left', x: 10, y: 10 },
@@ -53,10 +73,11 @@ const PositionTester: React.FC<PositionTesterProps> = ({ settings, onUpdate }) =
     const x = ((e.clientX - rect.left - dragOffset.x) / rect.width) * 100
     const y = ((e.clientY - rect.top - dragOffset.y) / rect.height) * 100
 
-    const clampedX = Math.max(0, Math.min(90, x))
-    const clampedY = Math.max(0, Math.min(90, y))
+    const clampedX = Math.max(0, Math.min(100, x))
+    const clampedY = Math.max(0, Math.min(100, y))
 
     onUpdate('testPosition', { x: clampedX, y: clampedY })
+    previewPosition(clampedX, clampedY)
   }
 
   const handleMouseUp = () => {
@@ -66,6 +87,7 @@ const PositionTester: React.FC<PositionTesterProps> = ({ settings, onUpdate }) =
   const startTest = () => {
     setIsTestActive(true)
     setTestOverlayVisible(true)
+    previewPosition(settings.testPosition.x, settings.testPosition.y)
     setTimeout(() => {
       setTestOverlayVisible(false)
       setIsTestActive(false)
@@ -84,6 +106,7 @@ const PositionTester: React.FC<PositionTesterProps> = ({ settings, onUpdate }) =
 
   const loadPosition = (position: { x: number; y: number }) => {
     onUpdate('testPosition', { x: position.x, y: position.y })
+    previewPosition(position.x, position.y)
   }
 
   const deleteSavedPosition = (index: number) => {
@@ -102,13 +125,17 @@ const PositionTester: React.FC<PositionTesterProps> = ({ settings, onUpdate }) =
           <input
             type="range"
             min="0"
-            max="90"
+            max="100"
             step="0.1"
             value={settings.testPosition.x}
-            onChange={(e) => onUpdate('testPosition', {
-              ...settings.testPosition,
-              x: parseFloat(e.target.value)
-            })}
+            onChange={(e) => {
+              const val = parseFloat(e.target.value)
+              onUpdate('testPosition', {
+                ...settings.testPosition,
+                x: val
+              })
+              previewPosition(val, settings.testPosition.y)
+            }}
             className="w-full"
           />
           <div className="text-xs text-gray-400 mt-1">
@@ -123,13 +150,17 @@ const PositionTester: React.FC<PositionTesterProps> = ({ settings, onUpdate }) =
           <input
             type="range"
             min="0"
-            max="90"
+            max="100"
             step="0.1"
             value={settings.testPosition.y}
-            onChange={(e) => onUpdate('testPosition', {
-              ...settings.testPosition,
-              y: parseFloat(e.target.value)
-            })}
+            onChange={(e) => {
+              const val = parseFloat(e.target.value)
+              onUpdate('testPosition', {
+                ...settings.testPosition,
+                y: val
+              })
+              previewPosition(settings.testPosition.x, val)
+            }}
             className="w-full"
           />
           <div className="text-xs text-gray-400 mt-1">

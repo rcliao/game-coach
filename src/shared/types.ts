@@ -13,6 +13,8 @@ export interface AppSettings {
   overlayEnabled: boolean
   ttsEnabled: boolean
   adviceFrequency: number // seconds between advice
+  // Overlay position as percentages of the screen
+  // Values represent the center of the overlay (0 = top/left, 100 = bottom/right)
   overlayPosition: {
     x: number
     y: number
