@@ -52,7 +52,7 @@ export class StateManager {
         overlayEnabled: true,
         ttsEnabled: false,
         adviceFrequency: 5,
-        overlayPosition: { x: 90, y: 10 },
+        overlayPosition: { x: 85, y: 11 },
         ttsVoice: 'default',
         ttsSpeed: 1.0,
         ttsVolume: 0.8,        ttsOnlyUrgent: false,

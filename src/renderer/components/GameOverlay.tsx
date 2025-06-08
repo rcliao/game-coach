@@ -68,8 +68,8 @@ const GameOverlay: React.FC = () => {
         <div
           className={`absolute animate-slideInRight ${sizeClass}`}
           style={{
-            top: `${settings.overlayPosition.y}%`,
-            left: `${settings.overlayPosition.x}%`,
+            top: '50%',
+            left: '50%',
             transform: 'translate(-50%, -50%)'
           }}
         >

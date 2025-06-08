@@ -40,8 +40,8 @@ test('overlay displays in top right by default', async () => {
     sw: window.screen.width,
     sh: window.screen.height,
   }))
-  const expectedX = Math.round(info.sw * 0.9 - info.w / 2)
-  const expectedY = Math.round(info.sh * 0.1 - info.h / 2)
+  const expectedX = Math.round(info.sw * 0.85 - info.w / 2)
+  const expectedY = Math.round(info.sh * 0.11 - info.h / 2)
   const clampedX = Math.max(0, Math.min(info.sw - info.w, expectedX))
   const clampedY = Math.max(0, Math.min(info.sh - info.h, expectedY))
   expect(info.x).toBe(clampedX)
