@@ -61,7 +61,9 @@ const GameOverlay: React.FC = () => {
   const adviceDisplay =
     showAdvice && currentAdvice ? (
       <div className={`animate-slideInRight ${sizeClass}`}>
-        <div className={`${theme.background} rounded-lg shadow-2xl transition-all duration-300`}>
+        <div
+          className={`${theme.background} rounded-lg shadow-2xl transition-all duration-300 p-4`}
+        >
           <div className="flex items-start space-x-3">
             <div className={`w-2 h-2 ${theme.indicator} rounded-full mt-2 flex-shrink-0 animate-pulse`} />
             <div className="flex-1">
