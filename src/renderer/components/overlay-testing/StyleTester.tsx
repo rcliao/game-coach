@@ -60,7 +60,8 @@ const StyleTester: React.FC<StyleTesterProps> = ({ settings, onUpdate }) => {
     }, settings.testDuration)
   }
 
-  const parseRGBA = (rgba: string) => {
+  const parseRGBA = (rgba?: string) => {
+    if (!rgba) return { r: 0, g: 0, b: 0, a: 1 }
     const match = rgba.match(/rgba?\(([^)]+)\)/)
     if (!match) return { r: 0, g: 0, b: 0, a: 1 }
     
