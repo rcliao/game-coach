@@ -27,6 +27,13 @@ const SettingsModal: React.FC<SettingsModalProps> = ({
     setSettingsModalOpen,
     isLoading,
     error,
+    isOverlayVisible,
+    showOverlay,
+    hideOverlay,
+    setGameDetection,
+    setGameState,
+    setLastAnalysis,
+    setAnalyzing,
   } = useSyncGameCoachStore()
   const [localSettings, setLocalSettings] = useState(settings)
   const [activeTab, setActiveTab] = useState<'api' | 'overlay' | 'instructions' | 'tts' | 'performance' | 'general'>('api')
@@ -61,7 +68,101 @@ const SettingsModal: React.FC<SettingsModalProps> = ({
     key: K,
     value: typeof localSettings[K]
   ) => {
-    setLocalSettings(prev => ({ ...prev, [key]: value }))  }
+    setLocalSettings(prev => ({ ...prev, [key]: value }))
+  }
+
+  const handleToggleOverlay = async () => {
+    if (isOverlayVisible) {
+      await hideOverlay()
+    } else {
+      await showOverlay()
+    }
+  }
+
+  const handleTestAdvice = () => {
+    const testAnalysis = {
+      advice:
+        'Test advice: Focus on dodging enemy attacks and look for openings to counter-attack.',
+      confidence: 0.85,
+      provider: 'test',
+      analysisTime: 120,
+      timestamp: Date.now(),
+      category: 'combat' as const,
+    }
+    setLastAnalysis(testAnalysis)
+  }
+
+  const handleTestAutomaticFlow = async () => {
+    try {
+      if (!settings.overlayEnabled) {
+        updateSettings({ overlayEnabled: true })
+        await new Promise((resolve) => setTimeout(resolve, 500))
+      }
+
+      await showOverlay()
+
+      const mockDetection = {
+        isGameRunning: true,
+        confidence: 0.9,
+        detectionMethod: 'test',
+        gameWindow: {
+          id: 'test',
+          name: 'Test Ravenswatch',
+          executable: 'ravenswatch.exe',
+          isActive: true,
+        },
+      }
+      setGameDetection(mockDetection)
+      setGameState({ isRavenswatchDetected: true })
+
+      setTimeout(() => {
+        setAnalyzing(true)
+      }, 2000)
+    } catch (error) {
+      console.error('SettingsModal: Automatic flow test failed:', error)
+    }
+  }
+
+  const handleForceContent = async () => {
+    try {
+      if (!settings.overlayEnabled) {
+        updateSettings({ overlayEnabled: true })
+        await new Promise((resolve) => setTimeout(resolve, 500))
+      }
+
+      await showOverlay()
+      await new Promise((resolve) => setTimeout(resolve, 1000))
+
+      const mockDetection = {
+        isGameRunning: true,
+        confidence: 0.95,
+        detectionMethod: 'forced-test',
+        gameWindow: {
+          id: 'test-force',
+          name: 'Test Ravenswatch (Forced)',
+          executable: 'ravenswatch.exe',
+          isActive: true,
+        },
+      }
+      setGameDetection(mockDetection)
+      setGameState({ isRavenswatchDetected: true })
+
+      setAnalyzing(true)
+
+      const testAnalysis = {
+        advice:
+          '🎯 FORCE CONTENT TEST: This advice should be visible in the overlay! The system is working correctly if you can see this message along with all the colorful debug panels.',
+        confidence: 0.95,
+        provider: 'force-test',
+        analysisTime: 50,
+        timestamp: Date.now(),
+        category: 'test' as const,
+      }
+      setLastAnalysis(testAnalysis)
+    } catch (error) {
+      console.error('SettingsModal: Force Content failed:', error)
+    }
+  }
 
   if (!isSettingsModalOpen) {
     return null
@@ -266,6 +367,65 @@ const SettingsModal: React.FC<SettingsModalProps> = ({
                 <p className="text-xs text-gray-400 mt-1">
                   Minimum time between advice suggestions
                 </p>
+              </div>
+
+              <div className="bg-gray-700 rounded-lg p-4">
+                <div className="flex items-center justify-between mb-3">
+                  <h3 className="text-sm font-medium text-gray-300">Overlay Control</h3>
+                  <div className="flex items-center space-x-2">
+                    <span className={`w-2 h-2 rounded-full ${isOverlayVisible ? 'bg-green-400' : 'bg-gray-500'}`}></span>
+                    <span className="text-xs text-gray-400">
+                      {isOverlayVisible ? 'Visible' : 'Hidden'}
+                    </span>
+                  </div>
+                </div>
+
+                <div className="space-y-2 text-xs text-gray-400 mb-3">
+                  <div>
+                    Status:
+                    <span className={isOverlayVisible ? 'text-green-300' : 'text-red-300'}>
+                      {isOverlayVisible ? 'Active' : 'Inactive'}
+                    </span>
+                  </div>
+                  <div>
+                    Enabled in Settings:
+                    <span className={settings.overlayEnabled ? 'text-green-300' : 'text-red-300'}>
+                      {settings.overlayEnabled ? 'Yes' : 'No'}
+                    </span>
+                  </div>
+                  <div>
+                    Theme: <span className="text-white capitalize">{settings.overlayTheme}</span>
+                  </div>
+                  <div>
+                    Size: <span className="text-white capitalize">{settings.overlaySize}</span>
+                  </div>
+                </div>
+
+                <button
+                  onClick={handleToggleOverlay}
+                  disabled={!settings.overlayEnabled}
+                  className={isOverlayVisible ? 'btn-danger text-xs' : 'btn-primary text-xs'}
+                >
+                  {isOverlayVisible ? 'Hide Overlay' : 'Show Overlay'}
+                </button>
+                {isOverlayVisible && (
+                  <button onClick={handleTestAdvice} className="btn-secondary text-xs ml-2">
+                    Test Advice
+                  </button>
+                )}
+                <button onClick={handleTestAutomaticFlow} className="btn-secondary text-xs ml-2">
+                  Test Auto Flow
+                </button>
+                <button
+                  onClick={handleForceContent}
+                  className="bg-purple-600 hover:bg-purple-700 text-white px-3 py-1 rounded text-xs ml-2"
+                >
+                  Force Content
+                </button>
+
+                {!settings.overlayEnabled && (
+                  <p className="text-xs text-yellow-300 mt-2">Enable overlay in settings first</p>
+                )}
               </div>
 
               <OverlayTestSuite />

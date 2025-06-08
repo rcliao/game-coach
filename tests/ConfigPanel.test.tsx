@@ -14,8 +14,8 @@ beforeAll(() => {
 })
 
 describe('ConfigPanel component', () => {
-  it('calls showOverlay when button clicked', () => {
-    const showOverlay = vi.fn()
+  it('opens settings modal when settings button clicked', () => {
+    const setSettingsModalOpen = vi.fn()
     const client: ScreenSourceClient = {
       getCaptureSources: vi.fn().mockResolvedValue([]),
     }
@@ -27,17 +27,10 @@ describe('ConfigPanel component', () => {
       error: null,
       startGameDetection: vi.fn(),
       stopGameDetection: vi.fn(),
-      setSettingsModalOpen: vi.fn(),
+      setSettingsModalOpen,
       initializeLLMService: vi.fn(),
       setAnalyzing: vi.fn(),
       gameState: { isRavenswatchDetected: false },
-      isOverlayVisible: false,
-      showOverlay,
-      hideOverlay: vi.fn(),
-      updateSettings: vi.fn(),
-      setGameDetection: vi.fn(),
-      setGameState: vi.fn(),
-      setLastAnalysis: vi.fn(),
       selectedSourceId: '1',
       setSelectedSource: vi.fn(),
       llmService: null,
@@ -45,8 +38,8 @@ describe('ConfigPanel component', () => {
 
     render(<ConfigPanel screenSourceClient={client} />)
 
-    const btn = screen.getByText('Show Overlay')
+    const btn = screen.getByText('Settings')
     fireEvent.click(btn)
-    expect(showOverlay).toHaveBeenCalled()
+    expect(setSettingsModalOpen).toHaveBeenCalledWith(true)
   })
 })

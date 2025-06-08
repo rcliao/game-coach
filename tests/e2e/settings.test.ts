@@ -25,10 +25,7 @@ test('overlay displays in top right by default', async () => {
   await page.getByRole('button', { name: 'Overlay', exact: true }).click()
   await expect(page.getByText('Enable Overlay')).toBeVisible()
 
-  // Close settings modal
-  await page.getByRole('button', { name: 'Cancel' }).click()
-
-  // Show overlay
+  // Show overlay from overlay tab
   await page.getByRole('button', { name: 'Show Overlay' }).click()
 
   // Wait for overlay window
