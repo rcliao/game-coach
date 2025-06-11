@@ -7,72 +7,11 @@ export interface ScreenSource {
 }
 
 export interface AppSettings {
-  llmProvider: 'gemini'
   geminiApiKey: string
+  systemInstruction: string
+  captureSourceId: string | null
   overlayEnabled: boolean
-  ttsEnabled: boolean
-  adviceFrequency: number // seconds between advice
-  // Overlay position as percentages of the screen
-  // Values represent the center of the overlay (0 = top/left, 100 = bottom/right)
-  overlayPosition: {
-    x: number
-    y: number
-  }
-  // Phase 3: Advanced TTS Settings
-  ttsVoice: string
-  ttsSpeed: number
-  ttsVolume: number
-  ttsOnlyUrgent: boolean
-  // Phase 3: Advanced Overlay Settings
-  overlayTheme: 'dark' | 'light' | 'minimal'
-  overlaySize: 'small' | 'medium' | 'large'
   overlayOpacity: number
-  showConfidenceScore: boolean
-  autoHideDelay: number // seconds
-  // Phase 3: Performance Settings
-  frameProcessingQuality: 'low' | 'medium' | 'high'
-  enableHUDRegionDetection: boolean
-  maxAdviceHistory: number
-  // V1: Custom Instructions System
-  customInstructions: {
-    systemPrompt: string
-    gameSpecificPrompts: Record<string, string>
-    activeTemplate: string
-    enableVariableSubstitution: boolean
-    customTemplates: InstructionTemplate[]
-  }
-  // V1: Capture Settings
-  captureSettings: {
-    selectedSource: ScreenSource | null
-    region: CaptureRegion | null
-    quality: 'low' | 'medium' | 'high'
-    frameRate: number
-    compression: number
-    autoDetectGames: boolean
-  }
-  // V1: Testing Settings
-  overlayTesting: {
-    testPosition: { x: number; y: number }
-    testSize: { width: number; height: number }
-    testDuration: number
-    testStyle: {
-      backgroundColor: string
-      textColor: string
-      fontSize: number
-      borderRadius: number
-      padding: number
-    }
-    enableMultiMonitor: boolean
-    savedPositions: Array<{ name: string; x: number; y: number; timestamp: number }>
-  }
-  // V1: Setup Progress
-  setupProgress: {
-    isComplete: boolean
-    completedSteps: string[]
-    setupStartTime: number
-    setupCompletionTime: number
-    firstSessionComplete: boolean
-  }
 }
 
 export interface GameState {

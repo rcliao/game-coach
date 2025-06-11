@@ -175,7 +175,6 @@ const ConfigPanel: React.FC<ConfigPanelProps> = ({
           </span>
         </div>
           <div className="space-y-2 text-xs text-gray-400">
-          <div>Provider: <span className="text-white capitalize">{settings.llmProvider}</span></div>
           <div>API Key: <span className="text-white">
             {isProviderConfigured ? '••••••••' : 'Not set'}
           </span></div>
@@ -309,7 +308,6 @@ const ConfigPanel: React.FC<ConfigPanelProps> = ({
           <div>AI Analysis: <span className={isAnalyzing ? 'text-blue-300' : 'text-gray-300'}>
             {isAnalyzing ? 'Active' : 'Inactive'}
           </span></div>
-          <div>Advice Frequency: <span className="text-white">{settings.adviceFrequency}s</span></div>
           <div>Last Analysis: <span className="text-white">
             {lastAnalysis ? new Date(lastAnalysis.timestamp || Date.now()).toLocaleTimeString() : 'Never'}
           </span></div>

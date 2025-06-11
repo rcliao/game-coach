@@ -5,6 +5,8 @@ import { LLMService, type LLMConfig, type AnalysisResponse } from '../services/l
 import { GameDetectorService, type GameDetectionResult } from '../services/game-detector'
 import { type StateClient, ElectronStateClient } from '../ipc/state-client'
 
+const MAX_ADVICE_HISTORY = 50
+
 interface SyncGameCoachState {
   // Core state - synchronized with main process
   gameDetection: GameDetectionResult | null
@@ -35,12 +37,6 @@ interface SyncGameCoachState {
     testScenario: string
   }
 
-  // V1: Overlay Testing state (local UI state)
-  overlayTesting: {
-    isTestActive: boolean
-    currentTestType: 'position' | 'style' | 'duration' | 'multimonitor' | null
-    testStartTime: number
-  }
 
   // Services
   llmService: LLMService | null
@@ -85,10 +81,6 @@ interface SyncGameCoachState {
   setPreviewMode: (enabled: boolean) => void
   setTestScenario: (scenario: string) => void
 
-  // V1: Overlay Testing actions
-  setOverlayTestingState: (state: Partial<SyncGameCoachState['overlayTesting']>) => void
-  startOverlayTest: (testType: 'position' | 'style' | 'duration' | 'multimonitor') => void
-  stopOverlayTest: () => void
 
   // Local UI actions
   setSettingsModalOpen: (open: boolean) => void
@@ -107,65 +99,13 @@ export function createSyncGameCoachStore(client: StateClient = new ElectronState
       lastFrameTime: 0,
     },
     isAnalyzing: false,
-    lastAnalysis: null,    settings: {
-      llmProvider: 'gemini',
+    lastAnalysis: null,
+    settings: {
       geminiApiKey: '',
+      systemInstruction: 'You are an expert gaming coach for Ravenswatch. Provide concise, actionable advice based on what you see in the game.',
+      captureSourceId: null,
       overlayEnabled: true,
-      ttsEnabled: false,
-      adviceFrequency: 5,
-      overlayPosition: { x: 85, y: 11 },
-      ttsVoice: 'default',
-      ttsSpeed: 1.0,
-      ttsVolume: 0.8,
-      ttsOnlyUrgent: false,
-      overlayTheme: 'dark',
-      overlaySize: 'medium',
-      overlayOpacity: 0.9,
-      showConfidenceScore: true,
-      autoHideDelay: 8,
-      frameProcessingQuality: 'medium',
-      enableHUDRegionDetection: true,
-      maxAdviceHistory: 50,
-      // V1: Custom Instructions defaults
-      customInstructions: {
-        systemPrompt: 'You are an expert gaming coach for Ravenswatch. Provide concise, actionable advice based on what you see in the game.',
-        gameSpecificPrompts: {},
-        activeTemplate: 'tactical-coach',
-        enableVariableSubstitution: true,
-        customTemplates: []
-      },
-      // V1: Capture Settings defaults
-      captureSettings: {
-        selectedSource: null,
-        region: null,
-        quality: 'medium',
-        frameRate: 30,
-        compression: 80,
-        autoDetectGames: true
-      },
-      // V1: Testing Settings defaults
-      overlayTesting: {
-        testPosition: { x: 100, y: 100 },
-        testSize: { width: 300, height: 100 },
-        testDuration: 5000,
-        testStyle: {
-          backgroundColor: 'rgba(0, 0, 0, 0.8)',
-          textColor: 'white',
-          fontSize: 14,
-          borderRadius: 8,
-          padding: 16,
-        },
-        enableMultiMonitor: false,
-        savedPositions: [],
-      },
-      // V1: Setup Progress defaults
-      setupProgress: {
-        isComplete: false,
-        completedSteps: [],
-        setupStartTime: 0,
-        setupCompletionTime: 0,
-        firstSessionComplete: false
-      }
+      overlayOpacity: 0.9
     },
     isOverlayVisible: false,    // Local UI state
     isSettingsModalOpen: false,
@@ -188,12 +128,6 @@ export function createSyncGameCoachStore(client: StateClient = new ElectronState
       testScenario: ''
     },
 
-    // V1: Overlay Testing state (local UI state)
-    overlayTesting: {
-      isTestActive: false,
-      currentTestType: null,
-      testStartTime: 0
-    },
 
     // Services
     llmService: null,
@@ -408,7 +342,7 @@ export function createSyncGameCoachStore(client: StateClient = new ElectronState
     // Advice actions
     addAdvice: (advice: Advice) => {
       set((state) => ({
-        adviceHistory: [advice, ...state.adviceHistory].slice(0, get().settings.maxAdviceHistory)
+        adviceHistory: [advice, ...state.adviceHistory].slice(0, MAX_ADVICE_HISTORY)
       }))
     },
     clearAdviceHistory: () => set({ adviceHistory: [] }),
@@ -430,16 +364,7 @@ export function createSyncGameCoachStore(client: StateClient = new ElectronState
       instructionEditor: { ...prev.instructionEditor, testScenario: scenario }
     })),
 
-    // V1: Overlay Testing actions
-    setOverlayTestingState: (state: Partial<SyncGameCoachState['overlayTesting']>) => set((prev) => ({
-      overlayTesting: { ...prev.overlayTesting, ...state }
-    })),
-    startOverlayTest: (testType: 'position' | 'style' | 'duration' | 'multimonitor') => set((prev) => ({
-      overlayTesting: { ...prev.overlayTesting, isTestActive: true, currentTestType: testType, testStartTime: Date.now() }
-    })),
-    stopOverlayTest: () => set((prev) => ({
-      overlayTesting: { ...prev.overlayTesting, isTestActive: false }
-    })),
+
 
     // Local UI actions
     setSettingsModalOpen: (open: boolean) => set({ isSettingsModalOpen: open }),

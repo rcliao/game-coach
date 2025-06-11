@@ -12,6 +12,8 @@ import {
   ElectronTemplateClient,
 } from '../ipc/template-client'
 
+const ADVICE_FREQUENCY = 5
+
 export const detectUrgentAdvice = (advice: string, confidence: number): boolean => {
   if (confidence < 0.7) return false
 
@@ -136,7 +138,7 @@ export const AnalysisEngine: React.FC<AnalysisEngineProps> = ({
 
 
       // Construct prompt directly from system instruction
-      const systemInstruction = settings.customInstructions.systemPrompt
+      const systemInstruction = settings.systemInstruction
 
       // Prepare analysis request using basic system instruction
       const analysisRequest: AnalysisRequest = {
@@ -250,7 +252,7 @@ export const AnalysisEngine: React.FC<AnalysisEngineProps> = ({
       intervalId: analysisInterval,
       selectedSourceId,
       captureCurrentlyActive: rendererScreenCapture.isCurrentlyCapturing(),
-      adviceFrequency: settings.adviceFrequency
+      adviceFrequency: ADVICE_FREQUENCY
     })
 
     if (analysisInterval) {
@@ -258,7 +260,7 @@ export const AnalysisEngine: React.FC<AnalysisEngineProps> = ({
       return
     }
 
-    console.log('AnalysisEngine: Creating analysis interval with frequency:', settings.adviceFrequency, 'seconds')
+    console.log('AnalysisEngine: Creating analysis interval with frequency:', ADVICE_FREQUENCY, 'seconds')
     const interval = setInterval(async () => {
       console.log('AnalysisEngine: ⏰ INTERVAL FIRED! Calling performAnalysis()...')
       console.log('AnalysisEngine: Interval context:', {
@@ -274,7 +276,7 @@ export const AnalysisEngine: React.FC<AnalysisEngineProps> = ({
       performAnalysis().catch((error: any) => {
         console.error('AnalysisEngine: Interval analysis failed:', error)
       })
-    }, settings.adviceFrequency * 1000)
+    }, ADVICE_FREQUENCY * 1000)
 
     setAnalysisInterval(interval)
     setCaptureActive(true)
@@ -290,7 +292,7 @@ export const AnalysisEngine: React.FC<AnalysisEngineProps> = ({
     }
 
     console.log('AnalysisEngine: Analysis loop started successfully')
-  }, [analysisInterval, selectedSourceId, settings.adviceFrequency, llmService, isLocallyAnalyzing, setCaptureActive, performAnalysis])
+  }, [analysisInterval, selectedSourceId, llmService, isLocallyAnalyzing, setCaptureActive, performAnalysis])
 
   // Debug function to manually test LLM integration
   const debugTestLLM = useCallback(async () => {
@@ -321,7 +323,7 @@ export const AnalysisEngine: React.FC<AnalysisEngineProps> = ({
     } else {
       console.log('AnalysisEngine: No API keys available, skipping LLM initialization')
     }
-  }, [settings.geminiApiKey, settings.llmProvider, initializeLLMService])
+  }, [settings.geminiApiKey, initializeLLMService])
 
   // Start/stop analysis loop - this is the main effect that controls the analysis
   useEffect(() => {
