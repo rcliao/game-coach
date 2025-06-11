@@ -27,7 +27,7 @@ export interface Advice {
   category?: 'combat' | 'exploration' | 'items' | 'general'
   confidence: number
   timestamp: number
-  provider: 'openai' | 'gemini'
+  provider: 'gemini'
   analysisTime?: number
 }
 
@@ -57,7 +57,7 @@ export interface AnalysisRequest {
 export interface AnalysisResponse {
   advice: string
   confidence: number
-  provider: 'openai' | 'gemini'
+  provider: 'gemini'
   timestamp: number
   analysisTime: number
 }

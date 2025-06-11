@@ -20,7 +20,7 @@ describe('ConfigPanel component', () => {
       getCaptureSources: vi.fn().mockResolvedValue([]),
     }
     mockUseStore.mockReturnValue({
-      settings: { overlayEnabled: true, llmProvider: 'openai', openaiApiKey: 'k', geminiApiKey: '' },
+      settings: { overlayEnabled: true, llmProvider: 'gemini', geminiApiKey: 'k' },
       isAnalyzing: false,
       gameDetection: null,
       lastAnalysis: null,

@@ -3,8 +3,6 @@ import { useSyncGameCoachStore } from '../stores/sync-store'
 import type { AnalysisRequest } from '../services/llm-service'
 import { rendererScreenCapture } from '../services/screen-capture-renderer'
 import { GameTemplateService } from '../services/game-template-service'
-import type { InstructionTemplate } from '@shared/types'
-import { ttsService } from '../services/tts-service'
 import {
   type ScreenSourceClient,
   ElectronScreenSourceClient,
@@ -136,57 +134,31 @@ export const AnalysisEngine: React.FC<AnalysisEngineProps> = ({
       const hudRegions = await templateService.getHUDRegions()
       console.log('AnalysisEngine: HUD regions loaded:', hudRegions.length, 'regions')
 
-      // Get custom instructions from settings
-      const { customInstructions } = settings
-      let customPrompt: string | undefined
-      let variableSubstitutions: Record<string, string> | undefined
 
-      // Check if custom instructions are enabled and we have an active template
-      if (customInstructions.enableVariableSubstitution && customInstructions.activeTemplate) {
-        // First check custom templates
-        const customTemplate = customInstructions.customTemplates?.find((t: InstructionTemplate) => t.id === customInstructions.activeTemplate)
-        
-        if (customTemplate) {
-          customPrompt = customTemplate.systemPrompt
-          
-          // Create variable substitutions based on current game context
-          variableSubstitutions = {
-            gameContext: 'Ravenswatch gameplay - analyzing current game state',
-            hudElements: 'Player health, mana, abilities, enemy positions, and UI elements',
-            playerStatus: 'Active gameplay analysis in progress'
-          }
-          
-          console.log('AnalysisEngine: Using custom template:', customTemplate.name)
-        } else if (customInstructions.systemPrompt && customInstructions.systemPrompt.trim()) {
-          // Fall back to system prompt if no template found
-          customPrompt = customInstructions.systemPrompt
-          console.log('AnalysisEngine: Using custom system prompt')
-        }
-      }
+      // Construct prompt directly from system instruction
+      const systemInstruction = settings.customInstructions.systemPrompt
 
-      // Prepare analysis request
+      // Prepare analysis request using basic system instruction
       const analysisRequest: AnalysisRequest = {
         imageBuffer: frameData,
         gameContext: 'Ravenswatch gameplay',        analysisType: 'tactical',
         hudRegions: hudRegions,
-        customInstructions: customPrompt,
-        variableSubstitutions: variableSubstitutions
+        customInstructions: systemInstruction
       }
 
       console.log('AnalysisEngine: Sending analysis request to LLM...')
       
-      console.log('AnalysisEngine: 🤖 About to call llmService.analyzeGameplay()', {
-        llmService: llmService.constructor.name,
-        isReady: llmService.isReady(),
-        providers: llmService.getAvailableProviders?.(),
-        requestSize: analysisRequest.imageBuffer.length,
-        gameContext: analysisRequest.gameContext,
-        analysisType: analysisRequest.analysisType,
-        hudRegionsCount: analysisRequest.hudRegions?.length || 0,
-        hasCustomInstructions: !!analysisRequest.customInstructions,
-        customInstructionsLength: analysisRequest.customInstructions?.length || 0,
-        hasVariableSubstitutions: !!analysisRequest.variableSubstitutions
-      })
+        console.log('AnalysisEngine: 🤖 About to call llmService.analyzeGameplay()', {
+          llmService: llmService.constructor.name,
+          isReady: llmService.isReady(),
+          providers: llmService.getAvailableProviders?.(),
+          requestSize: analysisRequest.imageBuffer.length,
+          gameContext: analysisRequest.gameContext,
+          analysisType: analysisRequest.analysisType,
+          hudRegionsCount: analysisRequest.hudRegions?.length || 0,
+          hasCustomInstructions: !!analysisRequest.customInstructions,
+          customInstructionsLength: analysisRequest.customInstructions?.length || 0
+        })
       
       // Perform LLM analysis with timeout
       let result
@@ -236,35 +208,9 @@ export const AnalysisEngine: React.FC<AnalysisEngineProps> = ({
         content: result.advice,
         timestamp: result.timestamp,
         confidence: result.confidence,
-        provider: result.provider as 'openai' | 'gemini',
+        provider: result.provider as 'gemini',
         analysisTime: result.analysisTime,
       })
-
-      // TTS functionality
-      if (settings.ttsEnabled && result.advice) {
-        // Determine if advice is urgent based on keywords and confidence
-        const isUrgent = detectUrgentAdviceMemo(result.advice, result.confidence)
-        
-        // Only speak if not in "urgent only" mode, or if advice is urgent
-        if (!settings.ttsOnlyUrgent || isUrgent) {
-          const ttsOptions = {
-            isUrgent,
-            speed: settings.ttsSpeed,
-            volume: settings.ttsVolume,
-            voice: settings.ttsVoice !== 'default' ? settings.ttsVoice : undefined
-          }
-          
-          if (isUrgent) {
-            ttsService.speakUrgentAdvice(result.advice).catch((error: any) => {
-              console.warn('Urgent TTS failed:', error)
-            })
-          } else {
-            ttsService.speakAdvice(result.advice, ttsOptions).catch((error: any) => {
-              console.warn('TTS failed:', error)
-            })
-          }
-        }
-      }
 
       setLastCaptureTime(Date.now())
     } catch (error) {
@@ -363,10 +309,9 @@ export const AnalysisEngine: React.FC<AnalysisEngineProps> = ({
   // Initialize LLM service when settings change
   useEffect(() => {
     console.log('AnalysisEngine: Settings changed, checking LLM initialization...')
-    console.log('AnalysisEngine: OpenAI key present:', !!settings.openaiApiKey)
     console.log('AnalysisEngine: Gemini key present:', !!settings.geminiApiKey)
-    
-    if (settings.openaiApiKey || settings.geminiApiKey) {
+
+    if (settings.geminiApiKey) {
       console.log('AnalysisEngine: Initializing LLM service...')
       initializeLLMService().then(() => {
         console.log('AnalysisEngine: LLM service initialization complete')
@@ -376,7 +321,7 @@ export const AnalysisEngine: React.FC<AnalysisEngineProps> = ({
     } else {
       console.log('AnalysisEngine: No API keys available, skipping LLM initialization')
     }
-  }, [settings.openaiApiKey, settings.geminiApiKey, settings.llmProvider, initializeLLMService])
+  }, [settings.geminiApiKey, settings.llmProvider, initializeLLMService])
 
   // Start/stop analysis loop - this is the main effect that controls the analysis
   useEffect(() => {
