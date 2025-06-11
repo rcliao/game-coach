@@ -1,7 +1,5 @@
 import React, { useState, useEffect } from 'react'
 import { useSyncGameCoachStore } from '../stores/sync-store'
-import InstructionTemplate from './instructions/InstructionTemplate'
-import OverlayTestSuite from './overlay-testing/OverlayTestSuite'
 import {
   type ScreenSourceClient,
   ElectronScreenSourceClient,
@@ -36,7 +34,7 @@ const SettingsModal: React.FC<SettingsModalProps> = ({
     setAnalyzing,
   } = useSyncGameCoachStore()
   const [localSettings, setLocalSettings] = useState(settings)
-  const [activeTab, setActiveTab] = useState<'api' | 'overlay' | 'instructions' | 'tts' | 'performance' | 'general'>('api')
+  const [activeTab, setActiveTab] = useState<'api' | 'overlay' | 'tts' | 'performance' | 'general'>('api')
   // Sync local settings when store settings change
   useEffect(() => {
     setLocalSettings(settings)
@@ -196,7 +194,6 @@ const SettingsModal: React.FC<SettingsModalProps> = ({
           {[
             { id: 'api', label: 'API Keys' },
             { id: 'overlay', label: 'Overlay' },
-            { id: 'instructions', label: 'Instructions' },
             { id: 'tts', label: 'Text-to-Speech' },
             { id: 'performance', label: 'Performance' },
             { id: 'general', label: 'General' },
@@ -437,13 +434,6 @@ const SettingsModal: React.FC<SettingsModalProps> = ({
                 )}
               </div>
 
-              <OverlayTestSuite />
-            </div>
-          )}
-          {/* Instructions Tab */}
-          {activeTab === 'instructions' && (
-            <div className="h-96 overflow-y-auto p-2">
-              <InstructionTemplate />
             </div>
           )}
 

@@ -3,7 +3,6 @@ import { useSyncGameCoachStore } from '../stores/sync-store'
 import type { AnalysisRequest } from '../services/llm-service'
 import { rendererScreenCapture } from '../services/screen-capture-renderer'
 import { GameTemplateService } from '../services/game-template-service'
-import { ttsService } from '../services/tts-service'
 import {
   type ScreenSourceClient,
   ElectronScreenSourceClient,
@@ -80,7 +79,6 @@ export const AnalysisEngine: React.FC<AnalysisEngineProps> = ({
     }
   }, [])
 
-  const detectUrgentAdviceMemo = useCallback(detectUrgentAdvice, [])
 
   // Fixed performAnalysis function to prevent infinite loop
   const performAnalysis = useCallback(async () => {
@@ -135,41 +133,11 @@ export const AnalysisEngine: React.FC<AnalysisEngineProps> = ({
       const hudRegions = await templateService.getHUDRegions()
       console.log('AnalysisEngine: HUD regions loaded:', hudRegions.length, 'regions')
 
-      // Get custom instructions from settings
-      const { customInstructions } = settings
-      let customPrompt: string | undefined
-      let variableSubstitutions: Record<string, string> | undefined
-
-      // Check if custom instructions are enabled and we have an active template
-      if (customInstructions.enableVariableSubstitution && customInstructions.activeTemplate) {
-        // First check custom templates
-        const customTemplate = customInstructions.customTemplates?.find(t => t.id === customInstructions.activeTemplate)
-        
-        if (customTemplate) {
-          customPrompt = customTemplate.systemPrompt
-          
-          // Create variable substitutions based on current game context
-          variableSubstitutions = {
-            gameContext: 'Ravenswatch gameplay - analyzing current game state',
-            hudElements: 'Player health, mana, abilities, enemy positions, and UI elements',
-            playerStatus: 'Active gameplay analysis in progress'
-          }
-          
-          console.log('AnalysisEngine: Using custom template:', customTemplate.name)
-        } else if (customInstructions.systemPrompt && customInstructions.systemPrompt.trim()) {
-          // Fall back to system prompt if no template found
-          customPrompt = customInstructions.systemPrompt
-          console.log('AnalysisEngine: Using custom system prompt')
-        }
-      }
-
       // Prepare analysis request
       const analysisRequest: AnalysisRequest = {
         imageBuffer: frameData,
         gameContext: 'Ravenswatch gameplay',        analysisType: 'tactical',
-        hudRegions: hudRegions,
-        customInstructions: customPrompt,
-        variableSubstitutions: variableSubstitutions
+        hudRegions: hudRegions
       }
 
       console.log('AnalysisEngine: Sending analysis request to LLM...')
@@ -181,10 +149,7 @@ export const AnalysisEngine: React.FC<AnalysisEngineProps> = ({
         requestSize: analysisRequest.imageBuffer.length,
         gameContext: analysisRequest.gameContext,
         analysisType: analysisRequest.analysisType,
-        hudRegionsCount: analysisRequest.hudRegions?.length || 0,
-        hasCustomInstructions: !!analysisRequest.customInstructions,
-        customInstructionsLength: analysisRequest.customInstructions?.length || 0,
-        hasVariableSubstitutions: !!analysisRequest.variableSubstitutions
+        hudRegionsCount: analysisRequest.hudRegions?.length || 0
       })
       
       // Perform LLM analysis with timeout
@@ -239,32 +204,6 @@ export const AnalysisEngine: React.FC<AnalysisEngineProps> = ({
         analysisTime: result.analysisTime,
       })
 
-      // TTS functionality
-      if (settings.ttsEnabled && result.advice) {
-        // Determine if advice is urgent based on keywords and confidence
-        const isUrgent = detectUrgentAdviceMemo(result.advice, result.confidence)
-        
-        // Only speak if not in "urgent only" mode, or if advice is urgent
-        if (!settings.ttsOnlyUrgent || isUrgent) {
-          const ttsOptions = {
-            isUrgent,
-            speed: settings.ttsSpeed,
-            volume: settings.ttsVolume,
-            voice: settings.ttsVoice !== 'default' ? settings.ttsVoice : undefined
-          }
-          
-          if (isUrgent) {
-            ttsService.speakUrgentAdvice(result.advice).catch((error: any) => {
-              console.warn('Urgent TTS failed:', error)
-            })
-          } else {
-            ttsService.speakAdvice(result.advice, ttsOptions).catch((error: any) => {
-              console.warn('TTS failed:', error)
-            })
-          }
-        }
-      }
-
       setLastCaptureTime(Date.now())
     } catch (error) {
       console.error('Analysis failed:', error)
@@ -273,7 +212,7 @@ export const AnalysisEngine: React.FC<AnalysisEngineProps> = ({
       setIsLocallyAnalyzing(false)
       setAnalyzing(false)
     }
-  }, [llmService, selectedSourceId, isLocallyAnalyzing, setAnalyzing, setLastAnalysis, addAdvice, settings, setLastCaptureTime, captureFrame, detectUrgentAdviceMemo])
+  }, [llmService, selectedSourceId, isLocallyAnalyzing, setAnalyzing, setLastAnalysis, addAdvice, settings, setLastCaptureTime, captureFrame])
 
   const stopAnalysisLoop = useCallback(() => {
     console.log('AnalysisEngine: stopAnalysisLoop() called', {

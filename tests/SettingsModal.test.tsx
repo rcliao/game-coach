@@ -3,12 +3,6 @@ import { render, screen, fireEvent } from '@testing-library/react'
 import '@testing-library/jest-dom'
 import SettingsModal from '../src/renderer/components/SettingsModal'
 
-vi.mock('../src/renderer/components/instructions/InstructionTemplate', () => ({
-  default: () => <div>InstructionTemplate</div>
-}))
-vi.mock('../src/renderer/components/overlay-testing/OverlayTestSuite', () => ({
-  default: () => <div>OverlayTestSuite</div>
-}))
 
 const mockUseStore = vi.fn()
 vi.mock('../src/renderer/stores/sync-store', () => ({
@@ -35,9 +29,7 @@ const settings = {
   frameProcessingQuality: 'medium',
   enableHUDRegionDetection: true,
   maxAdviceHistory: 10,
-  customInstructions: { systemPrompt: '', gameSpecificPrompts: {}, activeTemplate: '', enableVariableSubstitution: true, customTemplates: [] },
   captureSettings: { selectedSource: null, region: null, quality: 'medium', frameRate: 30, compression: 80, autoDetectGames: true },
-  overlayTesting: { testPosition:{x:0,y:0}, testSize:{width:0,height:0}, testDuration:0, testStyle:{backgroundColor:'',textColor:'',fontSize:0,borderRadius:0,padding:0}, enableMultiMonitor:false, savedPositions:[] },
   setupProgress:{ isComplete:false, completedSteps:[], setupStartTime:0, setupCompletionTime:0, firstSessionComplete:false }
 }
 
@@ -71,21 +63,6 @@ describe('SettingsModal component', () => {
     expect(setSettingsModalOpen).toHaveBeenCalledWith(false)
   })
 
-  it('renders overlay testing suite within overlay tab', () => {
-    mockUseStore.mockReturnValue({
-      settings,
-      updateSettings: vi.fn(),
-      isSettingsModalOpen: true,
-      setSettingsModalOpen: vi.fn(),
-      isLoading: false,
-      error: null
-    })
-
-    render(<SettingsModal />)
-
-    fireEvent.click(screen.getByText('Overlay'))
-    expect(screen.getByText('OverlayTestSuite')).toBeInTheDocument()
-  })
 
   it('calls showOverlay when overlay control button clicked', () => {
     const showOverlay = vi.fn()

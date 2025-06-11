@@ -64,14 +64,6 @@ export class StateManager {
         frameProcessingQuality: 'medium',
         enableHUDRegionDetection: true,
         maxAdviceHistory: 10,
-        // V1: Custom Instructions defaults
-        customInstructions: {
-          systemPrompt: 'You are an expert gaming coach for Ravenswatch. Provide concise, actionable advice based on what you see in the game.',
-          gameSpecificPrompts: {},
-          activeTemplate: 'tactical-coach',
-          enableVariableSubstitution: true,
-          customTemplates: []
-        },
         // V1: Capture Settings defaults
         captureSettings: {
           selectedSource: null,
@@ -80,21 +72,6 @@ export class StateManager {
           frameRate: 30,
           compression: 80,
           autoDetectGames: true
-        },
-        // V1: Testing Settings defaults
-        overlayTesting: {
-          testPosition: { x: 100, y: 100 },
-          testSize: { width: 300, height: 100 },
-          testDuration: 5000,
-          testStyle: {
-            backgroundColor: 'rgba(0, 0, 0, 0.8)',
-            textColor: 'white',
-            fontSize: 14,
-            borderRadius: 8,
-            padding: 16,
-          },
-          enableMultiMonitor: false,
-          savedPositions: [],
         },
         // V1: Setup Progress defaults
         setupProgress: {

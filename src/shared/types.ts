@@ -34,14 +34,6 @@ export interface AppSettings {
   frameProcessingQuality: 'low' | 'medium' | 'high'
   enableHUDRegionDetection: boolean
   maxAdviceHistory: number
-  // V1: Custom Instructions System
-  customInstructions: {
-    systemPrompt: string
-    gameSpecificPrompts: Record<string, string>
-    activeTemplate: string
-    enableVariableSubstitution: boolean
-    customTemplates: InstructionTemplate[]
-  }
   // V1: Capture Settings
   captureSettings: {
     selectedSource: ScreenSource | null
@@ -50,21 +42,6 @@ export interface AppSettings {
     frameRate: number
     compression: number
     autoDetectGames: boolean
-  }
-  // V1: Testing Settings
-  overlayTesting: {
-    testPosition: { x: number; y: number }
-    testSize: { width: number; height: number }
-    testDuration: number
-    testStyle: {
-      backgroundColor: string
-      textColor: string
-      fontSize: number
-      borderRadius: number
-      padding: number
-    }
-    enableMultiMonitor: boolean
-    savedPositions: Array<{ name: string; x: number; y: number; timestamp: number }>
   }
   // V1: Setup Progress
   setupProgress: {
@@ -195,19 +172,3 @@ export interface CaptureRegion {
 }
 
 // V1: Global State Extensions for Main Process
-export interface V1GlobalState {
-  overlayTesting: {
-    isTestMode: boolean
-    testPosition: { x: number; y: number }
-    testSize: { width: number; height: number }
-    testMessage: string
-    testDuration: number
-    previewStyle: string
-  }
-  instructionEditor: {
-    isOpen: boolean
-    currentTemplate: InstructionTemplate | null
-    isDirty: boolean
-    validationErrors: string[]
-  }
-}

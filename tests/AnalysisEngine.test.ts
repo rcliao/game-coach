@@ -1,7 +1,6 @@
 // @vitest-environment node
 import { describe, it, expect, vi } from 'vitest'
 
-vi.mock('../src/renderer/services/tts-service', () => ({ ttsService: {} }))
 vi.mock('../src/renderer/services/screen-capture-renderer', () => ({ rendererScreenCapture: {} }))
 vi.mock('../src/renderer/services/game-template-service', () => ({ gameTemplateService: {} }))
 

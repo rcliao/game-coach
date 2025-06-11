@@ -27,20 +27,6 @@ interface SyncGameCoachState {
   // Advice history
   adviceHistory: Advice[]
 
-  // V1: Instruction Editor state (local UI state)
-  instructionEditor: {
-    isDirty: boolean
-    activeTemplate: string | null
-    previewMode: boolean
-    testScenario: string
-  }
-
-  // V1: Overlay Testing state (local UI state)
-  overlayTesting: {
-    isTestActive: boolean
-    currentTestType: 'position' | 'style' | 'duration' | 'multimonitor' | null
-    testStartTime: number
-  }
 
   // Services
   llmService: LLMService | null
@@ -78,17 +64,6 @@ interface SyncGameCoachState {
   addAdvice: (advice: Advice) => void
   clearAdviceHistory: () => void
 
-  // V1: Instruction Editor actions
-  setInstructionEditorState: (state: Partial<SyncGameCoachState['instructionEditor']>) => void
-  markInstructionEditorDirty: (dirty: boolean) => void
-  setActiveTemplate: (templateId: string | null) => void
-  setPreviewMode: (enabled: boolean) => void
-  setTestScenario: (scenario: string) => void
-
-  // V1: Overlay Testing actions
-  setOverlayTestingState: (state: Partial<SyncGameCoachState['overlayTesting']>) => void
-  startOverlayTest: (testType: 'position' | 'style' | 'duration' | 'multimonitor') => void
-  stopOverlayTest: () => void
 
   // Local UI actions
   setSettingsModalOpen: (open: boolean) => void
@@ -127,14 +102,6 @@ export function createSyncGameCoachStore(client: StateClient = new ElectronState
       frameProcessingQuality: 'medium',
       enableHUDRegionDetection: true,
       maxAdviceHistory: 50,
-      // V1: Custom Instructions defaults
-      customInstructions: {
-        systemPrompt: 'You are an expert gaming coach for Ravenswatch. Provide concise, actionable advice based on what you see in the game.',
-        gameSpecificPrompts: {},
-        activeTemplate: 'tactical-coach',
-        enableVariableSubstitution: true,
-        customTemplates: []
-      },
       // V1: Capture Settings defaults
       captureSettings: {
         selectedSource: null,
@@ -143,21 +110,6 @@ export function createSyncGameCoachStore(client: StateClient = new ElectronState
         frameRate: 30,
         compression: 80,
         autoDetectGames: true
-      },
-      // V1: Testing Settings defaults
-      overlayTesting: {
-        testPosition: { x: 100, y: 100 },
-        testSize: { width: 300, height: 100 },
-        testDuration: 5000,
-        testStyle: {
-          backgroundColor: 'rgba(0, 0, 0, 0.8)',
-          textColor: 'white',
-          fontSize: 14,
-          borderRadius: 8,
-          padding: 16,
-        },
-        enableMultiMonitor: false,
-        savedPositions: [],
       },
       // V1: Setup Progress defaults
       setupProgress: {
@@ -181,20 +133,7 @@ export function createSyncGameCoachStore(client: StateClient = new ElectronState
     // Advice history
     adviceHistory: [],
 
-    // V1: Instruction Editor state (local UI state)
-    instructionEditor: {
-      isDirty: false,
-      activeTemplate: null,
-      previewMode: false,
-      testScenario: ''
-    },
 
-    // V1: Overlay Testing state (local UI state)
-    overlayTesting: {
-      isTestActive: false,
-      currentTestType: null,
-      testStartTime: 0
-    },
 
     // Services
     llmService: null,
@@ -420,33 +359,6 @@ export function createSyncGameCoachStore(client: StateClient = new ElectronState
     },
     clearAdviceHistory: () => set({ adviceHistory: [] }),
 
-    // V1: Instruction Editor actions
-    setInstructionEditorState: (state: Partial<SyncGameCoachState['instructionEditor']>) => set((prev) => ({
-      instructionEditor: { ...prev.instructionEditor, ...state }
-    })),
-    markInstructionEditorDirty: (dirty: boolean) => set((prev) => ({
-      instructionEditor: { ...prev.instructionEditor, isDirty: dirty }
-    })),
-    setActiveTemplate: (templateId: string | null) => set((prev) => ({
-      instructionEditor: { ...prev.instructionEditor, activeTemplate: templateId }
-    })),
-    setPreviewMode: (enabled: boolean) => set((prev) => ({
-      instructionEditor: { ...prev.instructionEditor, previewMode: enabled }
-    })),
-    setTestScenario: (scenario: string) => set((prev) => ({
-      instructionEditor: { ...prev.instructionEditor, testScenario: scenario }
-    })),
-
-    // V1: Overlay Testing actions
-    setOverlayTestingState: (state: Partial<SyncGameCoachState['overlayTesting']>) => set((prev) => ({
-      overlayTesting: { ...prev.overlayTesting, ...state }
-    })),
-    startOverlayTest: (testType: 'position' | 'style' | 'duration' | 'multimonitor') => set((prev) => ({
-      overlayTesting: { ...prev.overlayTesting, isTestActive: true, currentTestType: testType, testStartTime: Date.now() }
-    })),
-    stopOverlayTest: () => set((prev) => ({
-      overlayTesting: { ...prev.overlayTesting, isTestActive: false }
-    })),
 
     // Local UI actions
     setSettingsModalOpen: (open: boolean) => set({ isSettingsModalOpen: open }),
