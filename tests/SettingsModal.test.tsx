@@ -16,8 +16,7 @@ vi.mock('../src/renderer/stores/sync-store', () => ({
 }))
 
 const settings = {
-  llmProvider: 'openai',
-  openaiApiKey: '',
+  llmProvider: 'gemini',
   geminiApiKey: '',
   overlayEnabled: true,
   ttsEnabled: false,

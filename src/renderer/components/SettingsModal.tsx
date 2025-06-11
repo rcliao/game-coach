@@ -226,29 +226,13 @@ const SettingsModal: React.FC<SettingsModalProps> = ({
                 </label>
                 <select
                   value={localSettings.llmProvider}
-                  onChange={(e) => updateLocalSetting('llmProvider', e.target.value as 'openai' | 'gemini')}
+                  onChange={(e) => updateLocalSetting('llmProvider', e.target.value as 'gemini')}
                   className="w-full bg-gray-700 border border-gray-600 rounded-md px-3 py-2 text-white focus:outline-none focus:ring-2 focus:ring-primary-500"
                 >
-                  <option value="openai">OpenAI GPT-4 Vision</option>
                   <option value="gemini">Google Gemini Vision</option>
                 </select>
               </div>
 
-              <div>
-                <label className="block text-sm font-medium text-gray-300 mb-2">
-                  OpenAI API Key
-                </label>
-                <input
-                  type="password"
-                  value={localSettings.openaiApiKey}
-                  onChange={(e) => updateLocalSetting('openaiApiKey', e.target.value)}
-                  placeholder="sk-..."
-                  className="w-full bg-gray-700 border border-gray-600 rounded-md px-3 py-2 text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-primary-500"
-                />
-                <p className="text-xs text-gray-400 mt-1">
-                  Get your API key from <a href="https://platform.openai.com" className="text-primary-400 hover:underline">OpenAI Platform</a>
-                </p>
-              </div>
 
               <div>
                 <label className="block text-sm font-medium text-gray-300 mb-2">

@@ -108,8 +108,7 @@ export function createSyncGameCoachStore(client: StateClient = new ElectronState
     },
     isAnalyzing: false,
     lastAnalysis: null,    settings: {
-      llmProvider: 'openai',
-      openaiApiKey: '',
+      llmProvider: 'gemini',
       geminiApiKey: '',
       overlayEnabled: true,
       ttsEnabled: false,
@@ -374,23 +373,17 @@ export function createSyncGameCoachStore(client: StateClient = new ElectronState
       const { settings } = get()
       
       console.log('SyncStore: Preparing LLM config', {
-        hasOpenAI: !!settings.openaiApiKey,
-        hasGemini: !!settings.geminiApiKey,
-        provider: settings.llmProvider
+        hasGemini: !!settings.geminiApiKey
       })
 
       const config: LLMConfig = {
-        openaiApiKey: settings.openaiApiKey,
         geminiApiKey: settings.geminiApiKey,
-        preferredProvider: settings.llmProvider as 'openai' | 'gemini' | 'auto',
         maxRetries: 3,
         timeout: 30000,
       }
 
       try {
         console.log('SyncStore: Initializing LLM service with config:', {
-          provider: config.preferredProvider,
-          hasOpenAI: !!config.openaiApiKey,
           hasGemini: !!config.geminiApiKey
         })
         const llmService = new LLMService(config)
