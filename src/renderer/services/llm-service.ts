@@ -1,20 +1,10 @@
 import {
-  type OpenAIClient,
   type GeminiClient,
-  createDefaultOpenAIClient,
   createDefaultGeminiClient,
 } from './external-clients'
 
-export interface LLMProvider {
-  name: 'openai' | 'gemini'
-  analyze: (imageBuffer: Buffer, prompt: string) => Promise<string>
-  isConfigured: () => boolean
-}
-
 export interface LLMConfig {
-  openaiApiKey?: string
-  geminiApiKey?: string
-  preferredProvider: 'openai' | 'gemini' | 'auto'
+  geminiApiKey: string
   maxRetries: number
   timeout: number
 }
@@ -38,96 +28,67 @@ export interface AnalysisResponse {
 
 export class LLMService {
   private config: LLMConfig
-  private openaiClient?: OpenAIClient
   private geminiClient?: GeminiClient
-  private providers: LLMProvider[] = []
-  private openaiFactory: (key: string) => OpenAIClient
   private geminiFactory: (key: string) => GeminiClient
+
   constructor(
     config: LLMConfig,
     factories?: {
-      createOpenAI?: (key: string) => OpenAIClient
       createGemini?: (key: string) => GeminiClient
     }
   ) {
     console.log('LLMService: Constructor called with config:', {
-      hasOpenAI: !!config.openaiApiKey,
-      hasGemini: !!config.geminiApiKey,
-      provider: config.preferredProvider
+      hasGemini: !!config.geminiApiKey
     })
-    
+
     this.config = config
-    this.openaiFactory = factories?.createOpenAI ?? createDefaultOpenAIClient
     this.geminiFactory = factories?.createGemini ?? createDefaultGeminiClient
+
     try {
-      this.initializeProviders()
-      console.log('LLMService: Providers initialized successfully')
+      this.initializeGemini()
+      console.log('LLMService: Gemini initialized successfully')
     } catch (error) {
       console.error('LLMService: Error in constructor:', error)
       throw error
     }
   }
-  private initializeProviders() {
-    console.log('LLMService: Initializing providers...')
-    
-    // Initialize OpenAI
-    if (this.config.openaiApiKey) {
-      try {
-        console.log('LLMService: Initializing OpenAI client...')
-        this.openaiClient = this.openaiFactory(this.config.openaiApiKey)
-
-        this.providers.push({
-          name: 'openai',
-          analyze: this.analyzeWithOpenAI.bind(this),
-          isConfigured: () => !!this.config.openaiApiKey,
-        })
-        console.log('LLMService: OpenAI provider added')
-      } catch (error) {
-        console.error('LLMService: Error initializing OpenAI:', error)
-      }
-    }    // Initialize Gemini
-    if (this.config.geminiApiKey) {
-      try {
-        console.log('LLMService: Initializing Gemini client...')
-        this.geminiClient = this.geminiFactory(this.config.geminiApiKey)
-
-        this.providers.push({
-          name: 'gemini',
-          analyze: this.analyzeWithGemini.bind(this),
-          isConfigured: () => !!this.config.geminiApiKey,
-        })
-        console.log('LLMService: Gemini provider added')
-      } catch (error) {
-        console.error('LLMService: Error initializing Gemini:', error)
-      }
+  private initializeGemini() {
+    console.log('LLMService: Initializing Gemini client...')
+    if (!this.config.geminiApiKey) {
+      throw new Error('Gemini API key is required')
+    }
+    try {
+      this.geminiClient = this.geminiFactory(this.config.geminiApiKey)
+      console.log('LLMService: Gemini client created')
+    } catch (error) {
+      console.error('LLMService: Error initializing Gemini:', error)
+      throw error
     }
   }
 
   public updateConfig(newConfig: Partial<LLMConfig>) {
     this.config = { ...this.config, ...newConfig }
-    this.providers = []
-    this.initializeProviders()
+    this.initializeGemini()
   }
 
   public async analyzeGameplay(request: AnalysisRequest): Promise<AnalysisResponse> {
     const startTime = Date.now()
     
     try {
-      const provider = this.selectProvider()
-      if (!provider) {
-        throw new Error('No LLM provider configured')
+      if (!this.geminiClient) {
+        this.initializeGemini()
       }
 
       const prompt = this.buildPrompt(request)
       const advice = await this.retryWithBackoff(
-        () => provider.analyze(request.imageBuffer, prompt),
+        () => this.analyzeWithGemini(request.imageBuffer, prompt),
         this.config.maxRetries
       )
 
       return {
         advice,
         confidence: this.calculateConfidence(advice),
-        provider: provider.name,
+        provider: 'gemini',
         timestamp: Date.now(),
         analysisTime: Date.now() - startTime,
       }
@@ -137,16 +98,7 @@ export class LLMService {
     }
   }
 
-  private selectProvider(): LLMProvider | null {
-    if (this.config.preferredProvider === 'auto') {
-      // Return first available provider
-      return this.providers.find(p => p.isConfigured()) || null
-    }
-
-    // Return specific provider
-    const provider = this.providers.find(p => p.name === this.config.preferredProvider)
-    return provider?.isConfigured() ? provider : null
-  }  private buildPrompt(request: AnalysisRequest): string {
+  private buildPrompt(request: AnalysisRequest): string {
     // Use custom instructions if available, otherwise fall back to default
     let basePrompt: string
     
@@ -187,37 +139,6 @@ Provide concise, actionable advice in 1-2 sentences. Be specific and practical.`
     }
 
     return basePrompt
-  }
-
-  private async analyzeWithOpenAI(imageBuffer: Buffer, prompt: string): Promise<string> {
-    if (!this.openaiClient) {
-      throw new Error('OpenAI client not initialized')
-    }
-
-    const base64Image = imageBuffer.toString('base64')
-    
-    const response = await this.openaiClient.chat.completions.create({
-      model: 'gpt-4-vision-preview',
-      messages: [
-        {
-          role: 'user',
-          content: [
-            { type: 'text', text: prompt },
-            {
-              type: 'image_url',
-              image_url: {
-                url: `data:image/jpeg;base64,${base64Image}`,
-                detail: 'high'
-              },
-            },
-          ],
-        },
-      ],
-      max_tokens: 150,
-      temperature: 0.7,
-    })
-
-    return response.choices[0]?.message?.content || 'No advice generated'
   }
 
   private async analyzeWithGemini(imageBuffer: Buffer, prompt: string): Promise<string> {
@@ -285,10 +206,10 @@ Provide concise, actionable advice in 1-2 sentences. Be specific and practical.`
   }
 
   public getAvailableProviders(): string[] {
-    return this.providers.filter(p => p.isConfigured()).map(p => p.name)
+    return this.geminiClient ? ['gemini'] : []
   }
 
   public isReady(): boolean {
-    return this.providers.some(p => p.isConfigured())
+    return !!this.geminiClient
   }
 }

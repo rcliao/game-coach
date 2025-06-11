@@ -208,7 +208,7 @@ export const AnalysisEngine: React.FC<AnalysisEngineProps> = ({
         content: result.advice,
         timestamp: result.timestamp,
         confidence: result.confidence,
-        provider: result.provider as 'openai' | 'gemini',
+        provider: result.provider as 'gemini',
         analysisTime: result.analysisTime,
       })
 
@@ -309,10 +309,9 @@ export const AnalysisEngine: React.FC<AnalysisEngineProps> = ({
   // Initialize LLM service when settings change
   useEffect(() => {
     console.log('AnalysisEngine: Settings changed, checking LLM initialization...')
-    console.log('AnalysisEngine: OpenAI key present:', !!settings.openaiApiKey)
     console.log('AnalysisEngine: Gemini key present:', !!settings.geminiApiKey)
-    
-    if (settings.openaiApiKey || settings.geminiApiKey) {
+
+    if (settings.geminiApiKey) {
       console.log('AnalysisEngine: Initializing LLM service...')
       initializeLLMService().then(() => {
         console.log('AnalysisEngine: LLM service initialization complete')
@@ -322,7 +321,7 @@ export const AnalysisEngine: React.FC<AnalysisEngineProps> = ({
     } else {
       console.log('AnalysisEngine: No API keys available, skipping LLM initialization')
     }
-  }, [settings.openaiApiKey, settings.geminiApiKey, settings.llmProvider, initializeLLMService])
+  }, [settings.geminiApiKey, settings.llmProvider, initializeLLMService])
 
   // Start/stop analysis loop - this is the main effect that controls the analysis
   useEffect(() => {

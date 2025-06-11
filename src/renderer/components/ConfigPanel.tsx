@@ -116,9 +116,7 @@ const ConfigPanel: React.FC<ConfigPanelProps> = ({
     }
   }
 
-  const isProviderConfigured = settings.llmProvider === 'openai' 
-    ? !!settings.openaiApiKey 
-    : !!settings.geminiApiKey
+  const isProviderConfigured = !!settings.geminiApiKey
 
   const handleInitializeLlm = async () => {
     if (isProviderConfigured) {

@@ -46,8 +46,7 @@ export class StateManager {
       },
       isAnalyzing: false,
       lastAnalysis: null,      settings: {
-        llmProvider: 'openai',
-        openaiApiKey: '',
+        llmProvider: 'gemini',
         geminiApiKey: '',
         overlayEnabled: true,
         ttsEnabled: false,

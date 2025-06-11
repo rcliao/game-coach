@@ -56,13 +56,13 @@ describe('AnalysisEngine prompt usage', () => {
     const analyzeGameplay = vi.fn().mockResolvedValue({
       advice: 'ok',
       confidence: 1,
-      provider: 'openai',
+      provider: 'gemini',
       timestamp: Date.now(),
       analysisTime: 1
     })
 
     mockUseStore.mockReturnValue({
-      llmService: { isReady: () => true, analyzeGameplay, getAvailableProviders: () => ['openai'] },
+      llmService: { isReady: () => true, analyzeGameplay, getAvailableProviders: () => ['gemini'] },
       initializeLLMService: vi.fn(),
       gameDetection: { isGameRunning: true },
       selectedSourceId: 'src1',
@@ -79,7 +79,6 @@ describe('AnalysisEngine prompt usage', () => {
           enableVariableSubstitution: true,
           customTemplates: []
         },
-        openaiApiKey: '',
         geminiApiKey: ''
       },
       setLastCaptureTime: vi.fn(),

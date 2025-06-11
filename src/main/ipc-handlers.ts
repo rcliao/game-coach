@@ -34,8 +34,7 @@ export function setupIPCHandlers() {
     } catch (error) {
       // Return default settings if file doesn't exist
       return {
-        llmProvider: 'openai',
-        openaiApiKey: '',
+        llmProvider: 'gemini',
         geminiApiKey: '',
         overlayEnabled: true,
         ttsEnabled: false,
