@@ -27,7 +27,7 @@ const InstructionTemplateComponent: React.FC<InstructionTemplateProps> = ({
         const customTemplates = settings.customInstructions.customTemplates || []
         console.log(`InstructionTemplate: Syncing ${customTemplates.length} custom templates to service`)
         
-        customTemplates.forEach(customTemplate => {
+        customTemplates.forEach((customTemplate: InstructionTemplate) => {
           instructionTemplateService.addCustomTemplate(customTemplate)
         })
         
@@ -49,7 +49,7 @@ const InstructionTemplateComponent: React.FC<InstructionTemplateProps> = ({
       const customTemplates = settings.customInstructions.customTemplates || []
       console.log('InstructionTemplate: Re-syncing custom templates due to settings change')
       
-      customTemplates.forEach(customTemplate => {
+      customTemplates.forEach((customTemplate: InstructionTemplate) => {
         instructionTemplateService.addCustomTemplate(customTemplate)
       })
     }
@@ -81,7 +81,7 @@ const InstructionTemplateComponent: React.FC<InstructionTemplateProps> = ({
     
     // Add to custom templates in settings for persistence
     const existingTemplates = settings.customInstructions.customTemplates || []
-    const updatedTemplates = existingTemplates.filter(t => t.id !== template.id)
+    const updatedTemplates = existingTemplates.filter((t: InstructionTemplate) => t.id !== template.id)
     updatedTemplates.push(template)
 
     updateSettings({
@@ -117,7 +117,7 @@ const InstructionTemplateComponent: React.FC<InstructionTemplateProps> = ({
     console.log('InstructionTemplate: Looking for template with ID:', activeTemplate)
     
     // Check custom templates first
-    const customTemplate = customTemplates?.find(t => t.id === activeTemplate)
+    const customTemplate = customTemplates?.find((t: InstructionTemplate) => t.id === activeTemplate)
     if (customTemplate) {
       console.log('InstructionTemplate: Found custom template:', customTemplate.name)
       return customTemplate

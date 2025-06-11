@@ -3,6 +3,7 @@ import { useSyncGameCoachStore } from '../stores/sync-store'
 import type { AnalysisRequest } from '../services/llm-service'
 import { rendererScreenCapture } from '../services/screen-capture-renderer'
 import { GameTemplateService } from '../services/game-template-service'
+import type { InstructionTemplate } from '@shared/types'
 import { ttsService } from '../services/tts-service'
 import {
   type ScreenSourceClient,
@@ -143,7 +144,7 @@ export const AnalysisEngine: React.FC<AnalysisEngineProps> = ({
       // Check if custom instructions are enabled and we have an active template
       if (customInstructions.enableVariableSubstitution && customInstructions.activeTemplate) {
         // First check custom templates
-        const customTemplate = customInstructions.customTemplates?.find(t => t.id === customInstructions.activeTemplate)
+        const customTemplate = customInstructions.customTemplates?.find((t: InstructionTemplate) => t.id === customInstructions.activeTemplate)
         
         if (customTemplate) {
           customPrompt = customTemplate.systemPrompt

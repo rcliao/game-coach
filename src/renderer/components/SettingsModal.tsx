@@ -1,7 +1,6 @@
 import React, { useState, useEffect } from 'react'
 import { useSyncGameCoachStore } from '../stores/sync-store'
 import InstructionTemplate from './instructions/InstructionTemplate'
-import OverlayTestSuite from './overlay-testing/OverlayTestSuite'
 import {
   type ScreenSourceClient,
   ElectronScreenSourceClient,
@@ -437,7 +436,6 @@ const SettingsModal: React.FC<SettingsModalProps> = ({
                 )}
               </div>
 
-              <OverlayTestSuite />
             </div>
           )}
           {/* Instructions Tab */}

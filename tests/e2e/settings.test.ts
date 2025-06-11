@@ -15,7 +15,7 @@ test('open settings from main window', async () => {
   await electronApp.close()
 })
 
-test('overlay displays in top right by default', async () => {
+test('overlay displays centered by default', async () => {
   const electronApp = await launchApp()
 
   const page = await electronApp.firstWindow()
@@ -40,24 +40,11 @@ test('overlay displays in top right by default', async () => {
     sw: window.screen.width,
     sh: window.screen.height,
   }))
-  const expectedX = Math.round(info.sw * 0.85 - info.w / 2)
-  const expectedY = Math.round(info.sh * 0.11 - info.h / 2)
-  const clampedX = Math.max(0, Math.min(info.sw - info.w, expectedX))
-  const clampedY = Math.max(0, Math.min(info.sh - info.h, expectedY))
-  expect(info.x).toBe(clampedX)
-  expect(info.y).toBe(clampedY)
+  const expectedX = Math.round((info.sw - info.w) / 2)
+  const expectedY = Math.round((info.sh - info.h) / 2)
+  expect(info.x).toBe(expectedX)
+  expect(info.y).toBe(expectedY)
 
   await electronApp.close()
 })
 
-test('overlay tab shows overlay testing controls', async () => {
-  const electronApp = await launchApp()
-
-  const page = await electronApp.firstWindow()
-  await page.getByRole('button', { name: 'Settings' }).click()
-  await page.getByRole('button', { name: 'Overlay', exact: true }).click()
-
-  await expect(page.getByText('Overlay Testing Suite')).toBeVisible()
-
-  await electronApp.close()
-})

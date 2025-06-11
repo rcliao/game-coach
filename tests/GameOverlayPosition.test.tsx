@@ -9,12 +9,11 @@ vi.mock('../src/renderer/stores/sync-store', () => ({
 }))
 
 const baseSettings = {
+  geminiApiKey: '',
+  systemInstruction: '',
+  captureSourceId: null,
   overlayEnabled: true,
-  overlayTheme: 'dark',
-  overlaySize: 'medium',
   overlayOpacity: 1,
-  showConfidenceScore: true,
-  autoHideDelay: 5,
   overlayPosition: { x: 0, y: 0 }
 }
 

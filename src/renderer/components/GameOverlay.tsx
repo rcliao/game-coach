@@ -44,9 +44,10 @@ const GameOverlay: React.FC = () => {
     if (lastAnalysis && lastAnalysis.advice) {
       setCurrentAdvice(lastAnalysis.advice)
       setShowAdvice(true)
+      const hideDelay = (settings as any).autoHideDelay ?? 5
       const timer = setTimeout(() => {
         setShowAdvice(false)
-      }, settings.autoHideDelay * 1000)
+      }, hideDelay * 1000)
       return () => clearTimeout(timer)
     }
   }, [lastAnalysis, settings.autoHideDelay])
@@ -55,8 +56,8 @@ const GameOverlay: React.FC = () => {
     return null
   }
 
-  const theme = themeStyles[settings.overlayTheme] || themeStyles.dark
-  const sizeClass = sizeStyles[settings.overlaySize] || sizeStyles.large
+  const theme = (themeStyles as any)[(settings as any).overlayTheme] || themeStyles.dark
+  const sizeClass = (sizeStyles as any)[(settings as any).overlaySize] || sizeStyles.large
 
   const adviceDisplay =
     showAdvice && currentAdvice ? (
@@ -130,7 +131,7 @@ const GameOverlay: React.FC = () => {
     </div>
   )
 
-  const isBottom = settings.overlayPosition.y > 50
+  const isBottom = settings.overlayPosition?.y > 50
 
   return (
     <div
