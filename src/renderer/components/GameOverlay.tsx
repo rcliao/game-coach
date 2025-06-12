@@ -100,8 +100,12 @@ const GameOverlay: React.FC = () => {
 
   return (
     <div
-      className="fixed inset-0 pointer-events-none z-50 flex flex-col items-center justify-center space-y-2"
-      style={{ opacity: settings.overlayOpacity }}
+      className="fixed pointer-events-none z-50 flex flex-col items-center space-y-2"
+      style={{
+        opacity: settings.overlayOpacity,
+        top: settings.overlayOffsetY,
+        right: settings.overlayOffsetX,
+      }}
     >
       {statusDisplay}
       {adviceDisplay}

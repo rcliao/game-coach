@@ -135,6 +135,13 @@ export class RendererScreenCaptureService {
     return this.currentSourceId
   }
 
+  // Convenience helper used primarily for testing that capture works
+  // Attempts to grab a single frame and returns true if successful
+  public async verifyCapture(): Promise<boolean> {
+    const buffer = await this.captureFrame()
+    return buffer !== null && buffer.length > 0
+  }
+
   private cleanup(): void {
     // Stop media stream
     if (this.mediaStream) {

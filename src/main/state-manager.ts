@@ -48,7 +48,9 @@ export class StateManager {
         systemInstruction: 'You are an expert gaming coach for Ravenswatch. Provide concise, actionable advice based on what you see in the game.',
         captureSourceId: null,
         overlayEnabled: true,
-        overlayOpacity: 0.9
+        overlayOpacity: 0.9,
+        overlayOffsetX: 20,
+        overlayOffsetY: 20
       },
       isOverlayVisible: false,
     }

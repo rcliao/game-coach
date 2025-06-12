@@ -50,6 +50,16 @@ describe('WindowManager', () => {
     expect(sm.getState().isOverlayVisible).toBe(true)
   })
 
+  it('positions overlay using offsets', () => {
+    const sm = new StateManager({ enableIPC: false, loadSettings: false })
+    sm.setSettings({ overlayOffsetX: 30, overlayOffsetY: 40 })
+    const wm = new WindowManager(MockBrowserWindow as any, { isDev: false, stateManager: sm })
+    const overlay = wm.createOverlayWindow() as unknown as MockBrowserWindow
+
+    expect(overlay.options.x).toBe(800 - 640 - 30)
+    expect(overlay.options.y).toBe(40)
+  })
+
   it('closing overlay window hides overlay', () => {
     const sm = new StateManager({ enableIPC: false, loadSettings: false })
     const wm = new WindowManager(MockBrowserWindow as any, { isDev: false, stateManager: sm })

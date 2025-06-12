@@ -128,6 +128,27 @@ const SettingsModal: React.FC<SettingsModalProps> = ({
               className="w-full h-2 bg-gray-700 rounded-lg appearance-none cursor-pointer"
             />
           </div>
+
+          <div className="grid grid-cols-2 gap-4">
+            <div>
+              <label className="block text-sm font-medium text-gray-300 mb-2">Offset X</label>
+              <input
+                type="number"
+                value={localSettings.overlayOffsetX}
+                onChange={e => updateRoot('overlayOffsetX', parseInt(e.target.value))}
+                className="w-full bg-gray-700 border border-gray-600 rounded-md px-3 py-2 text-white focus:outline-none"
+              />
+            </div>
+            <div>
+              <label className="block text-sm font-medium text-gray-300 mb-2">Offset Y</label>
+              <input
+                type="number"
+                value={localSettings.overlayOffsetY}
+                onChange={e => updateRoot('overlayOffsetY', parseInt(e.target.value))}
+                className="w-full bg-gray-700 border border-gray-600 rounded-md px-3 py-2 text-white focus:outline-none"
+              />
+            </div>
+          </div>
         </div>
         <div className="flex items-center justify-end space-x-3 p-6 border-t border-gray-700">
           <button onClick={handleCancel} className="btn-secondary">

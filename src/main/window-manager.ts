@@ -47,17 +47,18 @@ export class WindowManager {
     return this.mainWindow
   }
 
-  private calculateOverlayPosition(overlayWidth: number, overlayHeight: number) {
-    const { width, height } = screen.getPrimaryDisplay().workAreaSize
-    const posX = Math.round(width / 2 - overlayWidth / 2)
-    const posY = Math.round(height / 2 - overlayHeight / 2)
+  private calculateOverlayPosition(overlayWidth: number) {
+    const { width } = screen.getPrimaryDisplay().workAreaSize
+    const { overlayOffsetX, overlayOffsetY } = this.stateManager.getSettings()
+    const posX = width - overlayWidth - overlayOffsetX
+    const posY = overlayOffsetY
     return { x: posX, y: posY }
   }
 
   private moveOverlayWindow() {
     if (!this.overlayWindow) return
-    const { width, height } = this.overlayWindow.getBounds()
-    const { x, y } = this.calculateOverlayPosition(width, height)
+    const { width } = this.overlayWindow.getBounds()
+    const { x, y } = this.calculateOverlayPosition(width)
     this.overlayWindow.setBounds({ x, y })
   }
 
@@ -70,10 +71,7 @@ export class WindowManager {
 
     const overlayWidth = 640
     const overlayHeight = 240
-    const { x: overlayX, y: overlayY } = this.calculateOverlayPosition(
-      overlayWidth,
-      overlayHeight
-    )
+    const { x: overlayX, y: overlayY } = this.calculateOverlayPosition(overlayWidth)
 
     const opts: BrowserWindowConstructorOptions = {
       width: overlayWidth,

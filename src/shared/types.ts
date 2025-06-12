@@ -12,6 +12,8 @@ export interface AppSettings {
   captureSourceId: string | null
   overlayEnabled: boolean
   overlayOpacity: number
+  overlayOffsetX: number
+  overlayOffsetY: number
 }
 
 export interface GameState {
