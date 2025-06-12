@@ -71,15 +71,11 @@ describe('AnalysisEngine prompt usage', () => {
       setLastAnalysis: vi.fn(),
       addAdvice: vi.fn(),
       settings: {
-        adviceFrequency: 5,
-        customInstructions: {
-          systemPrompt: 'basic prompt',
-          gameSpecificPrompts: {},
-          activeTemplate: '',
-          enableVariableSubstitution: true,
-          customTemplates: []
-        },
-        geminiApiKey: ''
+        geminiApiKey: '',
+        systemInstruction: 'basic prompt',
+        captureSourceId: 'src1',
+        overlayEnabled: true,
+        overlayOpacity: 1
       },
       setLastCaptureTime: vi.fn(),
       lastAnalysis: null,

@@ -50,19 +50,7 @@ const SettingsModal: React.FC<SettingsModalProps> = ({
     setLocalSettings(prev => ({ ...prev, [key]: value }))
   }
 
-  const updateCustomInstructions = <K extends keyof typeof localSettings.customInstructions>(key: K, value: any) => {
-    setLocalSettings(prev => ({
-      ...prev,
-      customInstructions: { ...prev.customInstructions, [key]: value },
-    }))
-  }
 
-  const updateCaptureSettings = <K extends keyof typeof localSettings.captureSettings>(key: K, value: any) => {
-    setLocalSettings(prev => ({
-      ...prev,
-      captureSettings: { ...prev.captureSettings, [key]: value },
-    }))
-  }
 
   if (!isSettingsModalOpen) return null
 
@@ -92,8 +80,8 @@ const SettingsModal: React.FC<SettingsModalProps> = ({
           <div>
             <label className="block text-sm font-medium text-gray-300 mb-2">System Instructions</label>
             <textarea
-              value={localSettings.customInstructions.systemPrompt}
-              onChange={e => updateCustomInstructions('systemPrompt', e.target.value)}
+              value={localSettings.systemInstruction}
+              onChange={e => updateRoot('systemInstruction', e.target.value)}
               className="w-full bg-gray-700 border border-gray-600 rounded-md px-3 py-2 text-white h-32 resize-none focus:outline-none focus:ring-2 focus:ring-primary-500"
             />
           </div>
@@ -101,11 +89,8 @@ const SettingsModal: React.FC<SettingsModalProps> = ({
           <div>
             <label className="block text-sm font-medium text-gray-300 mb-2">Capture Source</label>
             <select
-              value={localSettings.captureSettings.selectedSource?.id || ''}
-              onChange={e => {
-                const src = sources.find(s => s.id === e.target.value) || null
-                updateCaptureSettings('selectedSource', src)
-              }}
+              value={localSettings.captureSourceId || ''}
+              onChange={e => updateRoot('captureSourceId', e.target.value || null)}
               className="w-full bg-gray-700 border border-gray-600 rounded-md px-3 py-2 text-white focus:outline-none focus:ring-2 focus:ring-primary-500"
             >
               <option value="">Select source</option>

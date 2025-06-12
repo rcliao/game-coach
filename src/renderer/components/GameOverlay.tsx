@@ -1,32 +1,14 @@
 import React, { useEffect, useState } from 'react'
 import { useSyncGameCoachStore } from '../stores/sync-store'
 
-const themeStyles = {
-  dark: {
-    background: 'bg-black/85 backdrop-blur-sm border border-blue-500/50',
-    text: 'text-gray-200',
-    accent: 'text-blue-400',
-    indicator: 'bg-blue-500'
-  },
-  light: {
-    background: 'bg-white/90 backdrop-blur-sm border border-gray-300',
-    text: 'text-gray-800',
-    accent: 'text-blue-600',
-    indicator: 'bg-blue-600'
-  },
-  minimal: {
-    background: 'bg-gray-900/70 backdrop-blur-sm border border-gray-600/30',
-    text: 'text-gray-100',
-    accent: 'text-gray-300',
-    indicator: 'bg-gray-400'
-  }
+const theme = {
+  background: 'bg-black/85 backdrop-blur-sm border border-blue-500/50',
+  text: 'text-gray-200',
+  accent: 'text-blue-400',
+  indicator: 'bg-blue-500'
 }
-
-const sizeStyles = {
-  small: 'max-w-xs text-xs p-3',
-  medium: 'max-w-sm text-sm p-4',
-  large: 'max-w-xl text-base p-6'
-}
+const sizeClass = 'max-w-sm text-sm p-4'
+const AUTO_HIDE_DELAY = 8000
 
 const GameOverlay: React.FC = () => {
   const { 
@@ -46,17 +28,16 @@ const GameOverlay: React.FC = () => {
       setShowAdvice(true)
       const timer = setTimeout(() => {
         setShowAdvice(false)
-      }, settings.autoHideDelay * 1000)
+      }, AUTO_HIDE_DELAY)
       return () => clearTimeout(timer)
     }
-  }, [lastAnalysis, settings.autoHideDelay])
+  }, [lastAnalysis])
 
   if (!isOverlayVisible || !settings.overlayEnabled) {
     return null
   }
 
-  const theme = themeStyles[settings.overlayTheme] || themeStyles.dark
-  const sizeClass = sizeStyles[settings.overlaySize] || sizeStyles.large
+  // Use fixed theme and size
 
   const adviceDisplay =
     showAdvice && currentAdvice ? (
@@ -69,7 +50,7 @@ const GameOverlay: React.FC = () => {
             <div className="flex-1">
               <div className="flex items-center justify-between mb-2">
                 <p className={`${theme.accent} font-medium`}>AI Coach</p>
-                {lastAnalysis && settings.showConfidenceScore && (
+                {lastAnalysis && (
                   <div className="flex items-center space-x-2">
                     <span className="text-xs text-gray-400">
                       {(lastAnalysis.confidence * 100).toFixed(0)}%
@@ -130,24 +111,13 @@ const GameOverlay: React.FC = () => {
     </div>
   )
 
-  const isBottom = settings.overlayPosition.y > 50
-
   return (
     <div
       className="fixed inset-0 pointer-events-none z-50 flex flex-col items-center justify-center space-y-2"
       style={{ opacity: settings.overlayOpacity }}
     >
-      {isBottom ? (
-        <>
-          {adviceDisplay}
-          {statusDisplay}
-        </>
-      ) : (
-        <>
-          {statusDisplay}
-          {adviceDisplay}
-        </>
-      )}
+      {statusDisplay}
+      {adviceDisplay}
     </div>
   )
 }

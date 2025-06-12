@@ -10,12 +10,10 @@ vi.mock('../src/renderer/stores/sync-store', () => ({
 
 const baseSettings = {
   overlayEnabled: true,
-  overlayTheme: 'dark',
-  overlaySize: 'medium',
   overlayOpacity: 1,
-  showConfidenceScore: true,
-  overlayPosition: { x: 0, y: 0 },
-  autoHideDelay: 5,
+  geminiApiKey: '',
+  systemInstruction: '',
+  captureSourceId: null,
 }
 
 describe('GameOverlay component', () => {

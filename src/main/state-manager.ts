@@ -1,4 +1,4 @@
-import { BrowserWindow, ipcMain, screen } from 'electron'
+import { BrowserWindow, ipcMain } from 'electron'
 import type { SettingsStorage } from './settings-storage'
 import { defaultSettingsStorage } from './settings-storage'
 import type {
@@ -45,64 +45,13 @@ export class StateManager {
         lastFrameTime: 0,
       },
       isAnalyzing: false,
-      lastAnalysis: null,      settings: {
-        llmProvider: 'gemini',
+      lastAnalysis: null,
+      settings: {
         geminiApiKey: '',
+        systemInstruction: 'You are an expert gaming coach for Ravenswatch. Provide concise, actionable advice based on what you see in the game.',
+        captureSourceId: null,
         overlayEnabled: true,
-        ttsEnabled: false,
-        adviceFrequency: 5,
-        overlayPosition: { x: 85, y: 11 },
-        ttsVoice: 'default',
-        ttsSpeed: 1.0,
-        ttsVolume: 0.8,        ttsOnlyUrgent: false,
-        overlayTheme: 'dark',
-        overlaySize: 'medium',
-        overlayOpacity: 0.9,
-        showConfidenceScore: true,
-        autoHideDelay: 8,
-        frameProcessingQuality: 'medium',
-        enableHUDRegionDetection: true,
-        maxAdviceHistory: 10,
-        // V1: Custom Instructions defaults
-        customInstructions: {
-          systemPrompt: 'You are an expert gaming coach for Ravenswatch. Provide concise, actionable advice based on what you see in the game.',
-          gameSpecificPrompts: {},
-          activeTemplate: 'tactical-coach',
-          enableVariableSubstitution: true,
-          customTemplates: []
-        },
-        // V1: Capture Settings defaults
-        captureSettings: {
-          selectedSource: null,
-          region: null,
-          quality: 'medium',
-          frameRate: 30,
-          compression: 80,
-          autoDetectGames: true
-        },
-        // V1: Testing Settings defaults
-        overlayTesting: {
-          testPosition: { x: 100, y: 100 },
-          testSize: { width: 300, height: 100 },
-          testDuration: 5000,
-          testStyle: {
-            backgroundColor: 'rgba(0, 0, 0, 0.8)',
-            textColor: 'white',
-            fontSize: 14,
-            borderRadius: 8,
-            padding: 16,
-          },
-          enableMultiMonitor: false,
-          savedPositions: [],
-        },
-        // V1: Setup Progress defaults
-        setupProgress: {
-          isComplete: false,
-          completedSteps: [],
-          setupStartTime: 0,
-          setupCompletionTime: 0,
-          firstSessionComplete: false
-        }
+        overlayOpacity: 0.9
       },
       isOverlayVisible: false,
     }
@@ -186,16 +135,7 @@ export class StateManager {
     this.state.settings = { ...this.state.settings, ...settings }
     this.broadcastStateUpdate()
 
-    if (settings.overlayPosition && this.overlayWindow) {
-      const { width, height } = screen.getPrimaryDisplay().workAreaSize
-      const bounds = this.overlayWindow.getBounds()
-      const { x, y } = this.state.settings.overlayPosition
-      const centerX = (width * x) / 100
-      const centerY = (height * y) / 100
-      const posX = Math.max(0, Math.min(width - bounds.width, Math.round(centerX - bounds.width / 2)))
-      const posY = Math.max(0, Math.min(height - bounds.height, Math.round(centerY - bounds.height / 2)))
-      this.overlayWindow.setBounds({ x: posX, y: posY })
-    }
+
     
     // Auto-save settings to disk
     this.saveSettingsToDisk().catch(error => {

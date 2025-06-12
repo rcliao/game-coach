@@ -34,13 +34,11 @@ export function setupIPCHandlers() {
     } catch (error) {
       // Return default settings if file doesn't exist
       return {
-        llmProvider: 'gemini',
         geminiApiKey: '',
+        systemInstruction: '',
+        captureSourceId: null,
         overlayEnabled: true,
-        ttsEnabled: false,
-        captureInterval: 5000,
-        maxRetries: 3,
-        timeout: 30000,
+        overlayOpacity: 0.9
       }
     }
   })  // Enhanced screen capture handlers

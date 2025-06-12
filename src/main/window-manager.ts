@@ -49,11 +49,8 @@ export class WindowManager {
 
   private calculateOverlayPosition(overlayWidth: number, overlayHeight: number) {
     const { width, height } = screen.getPrimaryDisplay().workAreaSize
-    const { x, y } = this.stateManager.getSettings().overlayPosition
-    const centerX = (width * x) / 100
-    const centerY = (height * y) / 100
-    const posX = Math.max(0, Math.min(width - overlayWidth, Math.round(centerX - overlayWidth / 2)))
-    const posY = Math.max(0, Math.min(height - overlayHeight, Math.round(centerY - overlayHeight / 2)))
+    const posX = Math.round(width / 2 - overlayWidth / 2)
+    const posY = Math.round(height / 2 - overlayHeight / 2)
     return { x: posX, y: posY }
   }
 
