@@ -1,16 +1,11 @@
-import React, { useEffect, useState, useCallback, useMemo } from 'react'
+import React, { useEffect, useState, useCallback } from 'react'
 import { useSyncGameCoachStore } from '../stores/sync-store'
 import type { AnalysisRequest } from '../services/llm-service'
 import { rendererScreenCapture } from '../services/screen-capture-renderer'
-import { GameTemplateService } from '../services/game-template-service'
 import {
   type ScreenSourceClient,
   ElectronScreenSourceClient,
 } from '../ipc/screen-source-client'
-import {
-  type TemplateClient,
-  ElectronTemplateClient,
-} from '../ipc/template-client'
 
 const ADVICE_FREQUENCY = 5
 
@@ -31,13 +26,11 @@ export const detectUrgentAdvice = (advice: string, confidence: number): boolean 
 interface AnalysisEngineProps {
   isEnabled: boolean
   screenSourceClient?: ScreenSourceClient
-  templateClient?: TemplateClient
 }
 
 export const AnalysisEngine: React.FC<AnalysisEngineProps> = ({
   isEnabled,
-  screenSourceClient = new ElectronScreenSourceClient(),
-  templateClient = new ElectronTemplateClient(),
+  screenSourceClient = new ElectronScreenSourceClient()
 }) => {
   const {
     llmService,
@@ -54,7 +47,6 @@ export const AnalysisEngine: React.FC<AnalysisEngineProps> = ({
   
   const [analysisInterval, setAnalysisInterval] = useState<NodeJS.Timeout | null>(null)
   const [isLocallyAnalyzing, setIsLocallyAnalyzing] = useState(false)
-  const templateService = useMemo(() => new GameTemplateService(templateClient), [templateClient])
 
   // Helper functions declared with useCallback to prevent infinite loops
   const captureFrame = useCallback(async (): Promise<Buffer | null> => {
@@ -132,20 +124,11 @@ export const AnalysisEngine: React.FC<AnalysisEngineProps> = ({
 
       console.log('AnalysisEngine: Frame captured successfully, size:', frameData.length, 'bytes')
 
-      // Load HUD regions from game template      console.log('AnalysisEngine: Loading HUD regions...')
-      const hudRegions = await templateService.getHUDRegions()
-      console.log('AnalysisEngine: HUD regions loaded:', hudRegions.length, 'regions')
+      const prompt = settings.systemInstruction
 
-
-      // Construct prompt directly from system instruction
-      const systemInstruction = settings.systemInstruction
-
-      // Prepare analysis request using basic system instruction
       const analysisRequest: AnalysisRequest = {
         imageBuffer: frameData,
-        gameContext: 'Ravenswatch gameplay',        analysisType: 'tactical',
-        hudRegions: hudRegions,
-        customInstructions: systemInstruction
+        prompt
       }
 
       console.log('AnalysisEngine: Sending analysis request to LLM...')
@@ -155,11 +138,7 @@ export const AnalysisEngine: React.FC<AnalysisEngineProps> = ({
           isReady: llmService.isReady(),
           providers: llmService.getAvailableProviders?.(),
           requestSize: analysisRequest.imageBuffer.length,
-          gameContext: analysisRequest.gameContext,
-          analysisType: analysisRequest.analysisType,
-          hudRegionsCount: analysisRequest.hudRegions?.length || 0,
-          hasCustomInstructions: !!analysisRequest.customInstructions,
-          customInstructionsLength: analysisRequest.customInstructions?.length || 0
+          promptLength: analysisRequest.prompt.length
         })
       
       // Perform LLM analysis with timeout

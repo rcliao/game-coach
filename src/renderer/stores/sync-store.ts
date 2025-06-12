@@ -311,9 +311,7 @@ export function createSyncGameCoachStore(client: StateClient = new ElectronState
       })
 
       const config: LLMConfig = {
-        geminiApiKey: settings.geminiApiKey,
-        maxRetries: 3,
-        timeout: 30000,
+        geminiApiKey: settings.geminiApiKey
       }
 
       try {

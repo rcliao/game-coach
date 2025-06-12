@@ -17,11 +17,7 @@ vi.mock('@google/generative-ai', () => {
 describe('LLMService retryWithBackoff', () => {
   it('retries until success', async () => {
     vi.useFakeTimers()
-    const service = new LLMService({
-      geminiApiKey: 'k',
-      maxRetries: 2,
-      timeout: 0
-    } as LLMConfig)
+    const service = new LLMService({ geminiApiKey: 'k' } as LLMConfig)
 
     const op = vi.fn()
       .mockRejectedValueOnce(new Error('e1'))
@@ -38,11 +34,7 @@ describe('LLMService retryWithBackoff', () => {
 
   it('throws after max retries', async () => {
     vi.useFakeTimers()
-    const service = new LLMService({
-      geminiApiKey: 'k',
-      maxRetries: 1,
-      timeout: 0
-    } as LLMConfig)
+    const service = new LLMService({ geminiApiKey: 'k' } as LLMConfig)
     const op = vi.fn().mockRejectedValue(new Error('fail'))
     const promise = (service as any).retryWithBackoff(op, 1)
     promise.catch(() => {})
@@ -54,11 +46,7 @@ describe('LLMService retryWithBackoff', () => {
 })
 
 describe('LLMService calculateConfidence', () => {
-  const service = new LLMService({
-    geminiApiKey: 'k',
-    maxRetries: 0,
-    timeout: 0
-  } as LLMConfig)
+  const service = new LLMService({ geminiApiKey: 'k' } as LLMConfig)
 
   it('returns low confidence for short advice', () => {
     const c = (service as any).calculateConfidence('short')
