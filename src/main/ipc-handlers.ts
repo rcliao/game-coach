@@ -38,7 +38,9 @@ export function setupIPCHandlers() {
         systemInstruction: '',
         captureSourceId: null,
         overlayEnabled: true,
-        overlayOpacity: 0.9
+        overlayOpacity: 0.9,
+        overlayOffsetX: 20,
+        overlayOffsetY: 20
       }
     }
   })  // Enhanced screen capture handlers

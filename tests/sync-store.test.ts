@@ -26,7 +26,7 @@ describe('sync-store', () => {
       gameState: { isRavenswatchDetected: true, isCapturing: false, currentSourceId: null, lastFrameTime: 0 },
       isAnalyzing: true,
       lastAnalysis: null,
-      settings: { overlayEnabled: false, geminiApiKey: '', systemInstruction: '', captureSourceId: null, overlayOpacity: 1 },
+      settings: { overlayEnabled: false, geminiApiKey: '', systemInstruction: '', captureSourceId: null, overlayOpacity: 1, overlayOffsetX: 20, overlayOffsetY: 20 },
       isOverlayVisible: true,
     }
     const { client, getUpdateCb } = createMockClient(initial)
@@ -46,7 +46,7 @@ describe('sync-store', () => {
       gameState: { isRavenswatchDetected: false, isCapturing: false, currentSourceId: null, lastFrameTime: 0 },
       isAnalyzing: false,
       lastAnalysis: null,
-      settings: { overlayEnabled: true, geminiApiKey: '', systemInstruction: '', captureSourceId: null, overlayOpacity: 1 },
+      settings: { overlayEnabled: true, geminiApiKey: '', systemInstruction: '', captureSourceId: null, overlayOpacity: 1, overlayOffsetX: 20, overlayOffsetY: 20 },
       isOverlayVisible: false,
     })
     const store = createSyncGameCoachStore(client)

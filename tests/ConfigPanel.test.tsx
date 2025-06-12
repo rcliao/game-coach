@@ -20,7 +20,7 @@ describe('ConfigPanel component', () => {
       getCaptureSources: vi.fn().mockResolvedValue([]),
     }
     mockUseStore.mockReturnValue({
-      settings: { overlayEnabled: true, geminiApiKey: 'k', systemInstruction: '', captureSourceId: null, overlayOpacity: 1 },
+      settings: { overlayEnabled: true, geminiApiKey: 'k', systemInstruction: '', captureSourceId: null, overlayOpacity: 1, overlayOffsetX: 20, overlayOffsetY: 20 },
       isAnalyzing: false,
       lastAnalysis: null,
       error: null,

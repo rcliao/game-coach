@@ -125,7 +125,7 @@ const App: React.FC = () => {
                 Ravenswatch Game Coach
               </h1>
             </div>            <div className="text-sm text-gray-400">
-              v0.1.0 - Phase 2 Complete: LLM Integration
+              v0.2.0 - Phase 1 Improvements
             </div>
           </div>
         </div>

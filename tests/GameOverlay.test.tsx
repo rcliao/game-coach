@@ -14,6 +14,8 @@ const baseSettings = {
   geminiApiKey: '',
   systemInstruction: '',
   captureSourceId: null,
+  overlayOffsetX: 20,
+  overlayOffsetY: 20,
 }
 
 describe('GameOverlay component', () => {
@@ -35,8 +37,11 @@ describe('GameOverlay component', () => {
       isAnalyzing: true,
       settings: baseSettings
     })
-    render(<GameOverlay />)
+    const { container } = render(<GameOverlay />)
     expect(screen.getByText('Stay safe')).toBeInTheDocument()
     expect(screen.getByText(/AI Coach/i)).toBeInTheDocument()
+    const overlay = container.firstChild as HTMLElement
+    expect(overlay.style.top).toBe(`${baseSettings.overlayOffsetY}px`)
+    expect(overlay.style.right).toBe(`${baseSettings.overlayOffsetX}px`)
   })
 })

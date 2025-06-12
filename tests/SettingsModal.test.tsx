@@ -13,7 +13,9 @@ const settings = {
   systemInstruction: '',
   captureSourceId: null,
   overlayEnabled: true,
-  overlayOpacity: 1
+  overlayOpacity: 1,
+  overlayOffsetX: 20,
+  overlayOffsetY: 20
 }
 
 const client = {
@@ -67,5 +69,7 @@ describe('SettingsModal component', () => {
     expect(screen.getByText('Capture Source')).toBeInTheDocument()
     expect(screen.getByText('Enable Overlay')).toBeInTheDocument()
     expect(screen.getByText(/Overlay Opacity/)).toBeInTheDocument()
+    expect(screen.getByText('Offset X')).toBeInTheDocument()
+    expect(screen.getByText('Offset Y')).toBeInTheDocument()
   })
 })

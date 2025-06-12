@@ -1,4 +1,4 @@
-import { app, BrowserWindow, ipcMain, desktopCapturer } from 'electron'
+import { app, BrowserWindow, ipcMain, desktopCapturer, globalShortcut } from 'electron'
 import { setupIPCHandlers } from './ipc-handlers'
 import WindowManager from './window-manager'
 
@@ -16,6 +16,9 @@ class GameCoachApp {
     app.whenReady().then(() => {
       this.windowManager.createMainWindow()
       this.setupIPC()
+      globalShortcut.register('Control+Shift+O', () => {
+        this.toggleOverlayWindow()
+      })
     })
 
     app.on('window-all-closed', () => {
@@ -29,6 +32,10 @@ class GameCoachApp {
         this.windowManager.createMainWindow()
       }
     })
+
+    app.on('will-quit', () => {
+      globalShortcut.unregisterAll()
+    })
   }
 
   public createOverlayWindow() {
@@ -37,6 +44,14 @@ class GameCoachApp {
 
   public closeOverlayWindow() {
     this.windowManager.closeOverlayWindow()
+  }
+
+  public toggleOverlayWindow() {
+    if (this.windowManager.getOverlayWindow()) {
+      this.closeOverlayWindow()
+    } else {
+      this.createOverlayWindow()
+    }
   }
 
   private setupIPC() {

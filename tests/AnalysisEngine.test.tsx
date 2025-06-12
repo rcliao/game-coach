@@ -64,7 +64,9 @@ describe('AnalysisEngine prompt usage', () => {
         systemInstruction: 'basic prompt',
         captureSourceId: 'src1',
         overlayEnabled: true,
-        overlayOpacity: 1
+        overlayOpacity: 1,
+        overlayOffsetX: 20,
+        overlayOffsetY: 20
       },
       setLastCaptureTime: vi.fn(),
       lastAnalysis: null,
