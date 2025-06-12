@@ -15,11 +15,8 @@ const ConfigPanel: React.FC<ConfigPanelProps> = ({
   const {
     settings,
     isAnalyzing,
-    gameDetection,
     lastAnalysis,
     error,
-    startGameDetection,
-    stopGameDetection,
     setSettingsModalOpen,
     initializeLLMService,
     setAnalyzing,
@@ -52,15 +49,14 @@ const ConfigPanel: React.FC<ConfigPanelProps> = ({
   const handleSelectSource = (sourceId: string) => {
     console.log('ConfigPanel: Selecting source:', sourceId)
     setSelectedSource(sourceId)
-  }  // Unified handler that coordinates LLM initialization, game detection and analysis
+  }  // Unified handler that coordinates LLM initialization and analysis
   const handleStartCoaching = async () => {
     console.log('ConfigPanel: Starting unified coaching workflow...')
-    
+
     if (isAnalyzing) {
       // Stop everything
       console.log('ConfigPanel: Stopping analysis and game detection...')
       await setAnalyzing(false)
-      stopGameDetection()
       return
     }
     
@@ -101,11 +97,7 @@ const ConfigPanel: React.FC<ConfigPanelProps> = ({
         setIsInitializingLLM(false)
       }
       
-      // Step 3: Start game detection
-      console.log('ConfigPanel: Starting game detection...')
-      startGameDetection()
-      
-      // Step 4: Start analysis immediately (don't wait for game detection)
+      // Start analysis immediately
       // The AnalysisEngine will handle the coordination properly
       console.log('ConfigPanel: Starting analysis...')
       await setAnalyzing(true)
@@ -133,7 +125,6 @@ const ConfigPanel: React.FC<ConfigPanelProps> = ({
   }
   
   const gameDetected = gameState.isRavenswatchDetected
-  const isGameDetectionRunning = !!gameDetection
 
   // Monitor LLM service status
   React.useEffect(() => {
@@ -147,9 +138,7 @@ const ConfigPanel: React.FC<ConfigPanelProps> = ({
   // Debug logging for state changes
   React.useEffect(() => {
     console.log('ConfigPanel: gameDetected state changed to:', gameDetected)
-    console.log('ConfigPanel: gameDetection object:', gameDetection)
-    console.log('ConfigPanel: isGameDetectionRunning:', isGameDetectionRunning)
-  }, [gameDetected, gameDetection, isGameDetectionRunning])
+  }, [gameDetected])
 
   return (
     <div className="bg-gray-800 rounded-lg p-6 space-y-6">
@@ -229,7 +218,7 @@ const ConfigPanel: React.FC<ConfigPanelProps> = ({
         {!selectedSourceId && (
           <div className="mb-3 p-3 bg-yellow-900/20 border border-yellow-600/30 rounded">
             <p className="text-xs text-yellow-300">
-              Please select a screen source to enable game detection and analysis.
+              Please select a screen source to enable AI analysis.
             </p>
           </div>
         )}
@@ -287,12 +276,10 @@ const ConfigPanel: React.FC<ConfigPanelProps> = ({
           <h3 className="text-sm font-medium text-gray-300">AI Game Coaching</h3>
           <div className="flex items-center space-x-2">
             <span className={`w-2 h-2 rounded-full ${
-              isAnalyzing ? 'bg-blue-400 animate-pulse' : 
-              isGameDetectionRunning ? 'bg-green-400' : 'bg-gray-500'
+              isAnalyzing ? 'bg-blue-400 animate-pulse' : 'bg-gray-500'
             }`}></span>
             <span className="text-xs text-gray-400">
-              {isAnalyzing ? 'AI Coaching Active' : 
-               isGameDetectionRunning ? 'Detection Running' : 'Inactive'}
+              {isAnalyzing ? 'AI Coaching Active' : 'Inactive'}
             </span>
           </div>
         </div>
@@ -302,20 +289,12 @@ const ConfigPanel: React.FC<ConfigPanelProps> = ({
           <div>Screen Source: <span className={selectedSourceId ? 'text-green-300' : 'text-red-300'}>
             {selectedSourceId ? 'Selected' : 'Not Selected'}
           </span></div>
-          <div>Game Status: <span className={gameDetected ? 'text-green-300' : 'text-red-300'}>
-            {gameDetected ? 'Detected' : 'Not Detected'}
-          </span></div>
           <div>AI Analysis: <span className={isAnalyzing ? 'text-blue-300' : 'text-gray-300'}>
             {isAnalyzing ? 'Active' : 'Inactive'}
           </span></div>
           <div>Last Analysis: <span className="text-white">
             {lastAnalysis ? new Date(lastAnalysis.timestamp || Date.now()).toLocaleTimeString() : 'Never'}
           </span></div>
-          {gameDetection && gameDetection.confidence > 0 && (
-            <div>Detection Confidence: <span className="text-white">
-              {(gameDetection.confidence * 100).toFixed(1)}%
-            </span></div>
-          )}
         </div>        <button
           onClick={handleStartCoaching}
           disabled={!isProviderConfigured || !selectedSourceId || isInitializingLLM}

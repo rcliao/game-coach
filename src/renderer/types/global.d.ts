@@ -15,10 +15,8 @@ declare global {
 
       // Centralized state management
       stateGetCurrent: () => Promise<any>
-      stateGetGameDetection: () => Promise<any>
       stateGetGameState: () => Promise<any>
       stateGetSettings: () => Promise<any>
-      stateSetGameDetection: (detection: any) => Promise<{success: boolean}>
       stateSetGameState: (gameState: any) => Promise<{success: boolean}>
       stateSetAnalyzing: (analyzing: boolean) => Promise<{success: boolean}>
       stateSetLastAnalysis: (analysis: any) => Promise<{success: boolean}>
@@ -36,8 +34,7 @@ declare global {
       // App info
       getAppVersion: () => Promise<string>
 
-      // Game detection and templates
-      detectRavenswatch: () => Promise<any>
+      // Game templates
       loadGameTemplate: (gameName: string) => Promise<any>
 
       // LLM analysis
@@ -46,7 +43,6 @@ declare global {
       // IPC event listeners
       onScreenCaptureFrame: (callback: (frame: any) => void) => void
       onAdviceReceived: (callback: (advice: any) => void) => void
-      onGameDetected: (callback: (gameInfo: any) => void) => void
       removeAllListeners: (channel: string) => void
     }
   }

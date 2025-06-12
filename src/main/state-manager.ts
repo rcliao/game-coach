@@ -5,12 +5,10 @@ import type {
   AppSettings,
   GameState,
   Advice,
-  GameDetectionResult,
 } from '../shared/types'
 
 // Centralized state interface for the main process
 interface GlobalState {
-  gameDetection: GameDetectionResult | null
   gameState: GameState
   isAnalyzing: boolean
   lastAnalysis: Advice | null
@@ -37,7 +35,6 @@ export class StateManager {
     this.loadSettings = options.loadSettings !== false
     this.storage = storage
     this.state = {
-      gameDetection: null,
       gameState: {
         isRavenswatchDetected: false,
         isCapturing: false,
@@ -78,10 +75,6 @@ export class StateManager {
     return { ...this.state }
   }
 
-  getGameDetection(): GameDetectionResult | null {
-    return this.state.gameDetection
-  }
-
   getGameState(): GameState {
     return { ...this.state.gameState }
   }
@@ -91,19 +84,6 @@ export class StateManager {
   }
 
   // State setters with automatic synchronization
-  setGameDetection(detection: GameDetectionResult | null) {
-    console.log('StateManager: Setting game detection:', detection)
-    this.state.gameDetection = detection
-    this.state.gameState.isRavenswatchDetected = detection?.isGameRunning || false
-    
-    // Auto-show overlay logic
-    if (detection?.isGameRunning && this.state.settings.overlayEnabled && !this.state.isOverlayVisible) {
-      console.log('StateManager: Game detected, auto-showing overlay')
-      this.setOverlayVisible(true)
-    }
-    
-    this.broadcastStateUpdate()
-  }
 
   setGameState(gameState: Partial<GameState>) {
     console.log('StateManager: Setting game state:', gameState)
@@ -115,9 +95,9 @@ export class StateManager {
     console.log('StateManager: Setting analyzing:', analyzing)
     this.state.isAnalyzing = analyzing
     
-    // Auto-show overlay when analysis starts if game is detected
-    if (analyzing && this.state.gameDetection?.isGameRunning && this.state.settings.overlayEnabled && !this.state.isOverlayVisible) {
-      console.log('StateManager: Analysis started with game detected, auto-showing overlay')
+    // Auto-show overlay when analysis starts
+    if (analyzing && this.state.settings.overlayEnabled && !this.state.isOverlayVisible) {
+      console.log('StateManager: Analysis started, auto-showing overlay')
       this.setOverlayVisible(true)
     }
     
@@ -212,10 +192,6 @@ export class StateManager {
       return this.getState()
     })
 
-    ipcMain.handle('state-get-game-detection', () => {
-      return this.getGameDetection()
-    })
-
     ipcMain.handle('state-get-game-state', () => {
       return this.getGameState()
     })
@@ -225,11 +201,6 @@ export class StateManager {
     })
 
     // State setters
-    ipcMain.handle('state-set-game-detection', (_event, detection: GameDetectionResult | null) => {
-      this.setGameDetection(detection)
-      return { success: true }
-    })
-
     ipcMain.handle('state-set-game-state', (_event, gameState: Partial<GameState>) => {
       this.setGameState(gameState)
       return { success: true }
@@ -257,9 +228,6 @@ export class StateManager {
 
     // Bulk state update
     ipcMain.handle('state-update-bulk', (_event, updates: Partial<GlobalState>) => {
-      if (updates.gameDetection !== undefined) {
-        this.setGameDetection(updates.gameDetection)
-      }
       if (updates.gameState !== undefined) {
         this.setGameState(updates.gameState)
       }

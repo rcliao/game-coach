@@ -7,7 +7,7 @@ vi.mock('electron', () => ({
 }))
 
 import { StateManager } from '../src/main/state-manager'
-import type { GameDetectionResult, AppSettings } from '../src/shared/types'
+import type { AppSettings } from '../src/shared/types'
 import type { SettingsStorage } from '../src/main/settings-storage'
 
 class MemorySettingsStorage implements SettingsStorage {
@@ -19,24 +19,6 @@ class MemorySettingsStorage implements SettingsStorage {
 }
 
 describe('StateManager', () => {
-  it('updates game detection and notifies subscribers', () => {
-    const storage = new MemorySettingsStorage()
-    const sm = new StateManager({ enableIPC: false, loadSettings: false }, storage)
-    const updates: any[] = []
-    sm.subscribe(state => updates.push(state))
-
-    const detection: GameDetectionResult = {
-      isGameRunning: true,
-      confidence: 1,
-      detectionMethod: 'test',
-    }
-
-    sm.setGameDetection(detection)
-
-    expect(sm.getGameDetection()).toEqual(detection)
-    expect(sm.getGameState().isRavenswatchDetected).toBe(true)
-    expect(updates.length).toBeGreaterThanOrEqual(1)
-  })
 
   it('updates settings and persists via storage', async () => {
     const storage = new MemorySettingsStorage()

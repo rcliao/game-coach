@@ -63,25 +63,6 @@ export interface AnalysisResponse {
 }
 
 // Game detection types
-export interface GameWindow {
-  id: string
-  name: string
-  executable: string
-  isActive: boolean
-  bounds?: {
-    x: number
-    y: number
-    width: number
-    height: number
-  }
-}
-
-export interface GameDetectionResult {
-  isGameRunning: boolean
-  gameWindow?: GameWindow
-  confidence: number
-  detectionMethod: string
-}
 
 export interface HUDRegion {
   name: string

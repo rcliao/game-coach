@@ -22,11 +22,8 @@ describe('ConfigPanel component', () => {
     mockUseStore.mockReturnValue({
       settings: { overlayEnabled: true, geminiApiKey: 'k', systemInstruction: '', captureSourceId: null, overlayOpacity: 1 },
       isAnalyzing: false,
-      gameDetection: null,
       lastAnalysis: null,
       error: null,
-      startGameDetection: vi.fn(),
-      stopGameDetection: vi.fn(),
       setSettingsModalOpen,
       initializeLLMService: vi.fn(),
       setAnalyzing: vi.fn(),
