@@ -22,7 +22,6 @@ describe('GameOverlay component', () => {
       isOverlayVisible: false,
       lastAnalysis: null,
       isAnalyzing: false,
-      gameDetection: null,
       settings: baseSettings
     })
     const { container } = render(<GameOverlay />)
@@ -34,7 +33,6 @@ describe('GameOverlay component', () => {
       isOverlayVisible: true,
       lastAnalysis: { advice: 'Stay safe', confidence: 0.8, provider: 'test', analysisTime: 100 },
       isAnalyzing: true,
-      gameDetection: { isGameRunning: true },
       settings: baseSettings
     })
     render(<GameOverlay />)

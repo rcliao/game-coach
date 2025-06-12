@@ -2,7 +2,6 @@ export interface StateClient {
   stateGetCurrent(): Promise<any>
   onStateUpdated(callback: (state: any) => void): () => void
   stateUpdateBulk(updates: any): Promise<any>
-  stateSetGameDetection(detection: any): Promise<any>
   stateSetGameState(gameState: any): Promise<any>
   stateSetAnalyzing(analyzing: boolean): Promise<any>
   stateSetLastAnalysis(analysis: any): Promise<any>
@@ -21,9 +20,6 @@ export class ElectronStateClient implements StateClient {
   }
   stateUpdateBulk(updates: any) {
     return window.electronAPI.stateUpdateBulk(updates)
-  }
-  stateSetGameDetection(detection: any) {
-    return window.electronAPI.stateSetGameDetection(detection)
   }
   stateSetGameState(gameState: any) {
     return window.electronAPI.stateSetGameState(gameState)

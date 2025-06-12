@@ -9,7 +9,6 @@ function createMockClient(initialState: any) {
     stateGetCurrent: vi.fn().mockResolvedValue(initialState),
     onStateUpdated: vi.fn((cb: (s: any) => void) => { updateCb = cb; return vi.fn() }),
     stateUpdateBulk: vi.fn(),
-    stateSetGameDetection: vi.fn().mockResolvedValue({}),
     stateSetGameState: vi.fn().mockResolvedValue({}),
     stateSetAnalyzing: vi.fn().mockResolvedValue({}),
     stateSetLastAnalysis: vi.fn().mockResolvedValue({}),
@@ -24,7 +23,6 @@ function createMockClient(initialState: any) {
 describe('sync-store', () => {
   it('initializes from client and reacts to updates', async () => {
     const initial = {
-      gameDetection: null,
       gameState: { isRavenswatchDetected: true, isCapturing: false, currentSourceId: null, lastFrameTime: 0 },
       isAnalyzing: true,
       lastAnalysis: null,
@@ -45,7 +43,6 @@ describe('sync-store', () => {
 
   it('forwards state setters to client', async () => {
     const { client } = createMockClient({
-      gameDetection: null,
       gameState: { isRavenswatchDetected: false, isCapturing: false, currentSourceId: null, lastFrameTime: 0 },
       isAnalyzing: false,
       lastAnalysis: null,
@@ -53,8 +50,7 @@ describe('sync-store', () => {
       isOverlayVisible: false,
     })
     const store = createSyncGameCoachStore(client)
-    const detection = { isGameRunning: true, confidence: 1, detectionMethod: 'test' }
-    await store.getState().setGameDetection(detection as any)
-    expect(client.stateSetGameDetection).toHaveBeenCalledWith(detection)
+    await store.getState().setGameState({ isRavenswatchDetected: true })
+    expect(client.stateSetGameState).toHaveBeenCalledWith({ isRavenswatchDetected: true })
   })
 })

@@ -35,7 +35,6 @@ export const AnalysisEngine: React.FC<AnalysisEngineProps> = ({
   const {
     llmService,
     initializeLLMService,
-    gameDetection,
     selectedSourceId,
     setCaptureActive,
     setAnalyzing,
@@ -308,9 +307,7 @@ export const AnalysisEngine: React.FC<AnalysisEngineProps> = ({
   useEffect(() => {
     console.log('AnalysisEngine: Analysis loop effect triggered', {
       isEnabled,
-      gameRunning: gameDetection?.isGameRunning,
       llmReady: llmService?.isReady(),
-      gameDetection: !!gameDetection,
       llmService: !!llmService,
       selectedSourceId: !!selectedSourceId
     })

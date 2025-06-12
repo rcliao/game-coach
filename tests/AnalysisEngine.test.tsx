@@ -54,7 +54,6 @@ describe('AnalysisEngine prompt usage', () => {
     mockUseStore.mockReturnValue({
       llmService: { isReady: () => true, analyzeGameplay, getAvailableProviders: () => ['gemini'] },
       initializeLLMService: vi.fn(),
-      gameDetection: { isGameRunning: true },
       selectedSourceId: 'src1',
       setCaptureActive: vi.fn(),
       setAnalyzing: vi.fn(),

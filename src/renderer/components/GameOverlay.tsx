@@ -15,7 +15,6 @@ const GameOverlay: React.FC = () => {
     isOverlayVisible, 
     lastAnalysis, 
     isAnalyzing,
-    gameDetection,
     settings
   } = useSyncGameCoachStore()
   
@@ -89,25 +88,13 @@ const GameOverlay: React.FC = () => {
       <div className={`${theme.background} rounded-full px-3 py-1 flex items-center space-x-2`}>
         <div
           className={`w-2 h-2 rounded-full ${
-            gameDetection?.isGameRunning ? 'bg-green-400 animate-pulse' : 'bg-red-400'
+            isAnalyzing ? 'bg-blue-400 animate-pulse' : 'bg-gray-400'
           }`}
         />
         <span className={`${theme.text} text-xs font-medium`}>
-          {gameDetection?.isGameRunning ? 'Ravenswatch Detected' : 'Game Not Detected'}
+          {isAnalyzing ? 'AI Analyzing' : 'AI Idle'}
         </span>
       </div>
-      {gameDetection?.isGameRunning && (
-        <div className={`${theme.background} rounded-full px-3 py-1 flex items-center space-x-2`}>
-          <div
-            className={`w-2 h-2 rounded-full ${
-              isAnalyzing ? 'bg-blue-400 animate-pulse' : 'bg-gray-400'
-            }`}
-          />
-          <span className={`${theme.text} text-xs font-medium`}>
-            {isAnalyzing ? 'AI Analyzing' : 'AI Idle'}
-          </span>
-        </div>
-      )}
     </div>
   )
 

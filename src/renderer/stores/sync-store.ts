@@ -2,14 +2,12 @@ import { create } from 'zustand'
 import { subscribeWithSelector } from 'zustand/middleware'
 import type { AppSettings, GameState, Advice } from '@shared/types'
 import { LLMService, type LLMConfig, type AnalysisResponse } from '../services/llm-service'
-import { GameDetectorService, type GameDetectionResult } from '../services/game-detector'
 import { type StateClient, ElectronStateClient } from '../ipc/state-client'
 
 const MAX_ADVICE_HISTORY = 50
 
 interface SyncGameCoachState {
   // Core state - synchronized with main process
-  gameDetection: GameDetectionResult | null
   gameState: GameState
   isAnalyzing: boolean
   lastAnalysis: AnalysisResponse | null
@@ -40,23 +38,18 @@ interface SyncGameCoachState {
 
   // Services
   llmService: LLMService | null
-  gameDetector: GameDetectorService
 
   // Actions
   initializeStore: () => Promise<void>
   syncToMainProcess: () => Promise<void>
   
   // State setters that update main process
-  setGameDetection: (detection: GameDetectionResult | null) => Promise<void>
   setGameState: (gameState: Partial<GameState>) => Promise<void>
   setAnalyzing: (analyzing: boolean) => Promise<void>
   setLastAnalysis: (analysis: AnalysisResponse | null) => Promise<void>
   updateSettings: (settings: Partial<AppSettings>) => Promise<void>
   setOverlayVisible: (visible: boolean) => Promise<void>
 
-  // Game detection actions
-  startGameDetection: () => void
-  stopGameDetection: () => void
   
   // Overlay actions
   showOverlay: () => Promise<void>
@@ -91,7 +84,6 @@ interface SyncGameCoachState {
 export function createSyncGameCoachStore(client: StateClient = new ElectronStateClient()) {
   return create<SyncGameCoachState>()(
     subscribeWithSelector((set, get) => ({    // Initial state
-    gameDetection: null,
     gameState: {
       isRavenswatchDetected: false,
       isCapturing: false,
@@ -131,7 +123,6 @@ export function createSyncGameCoachStore(client: StateClient = new ElectronState
 
     // Services
     llmService: null,
-    gameDetector: new GameDetectorService(),
 
     // Initialize store and sync with main process
     initializeStore: async () => {
@@ -144,7 +135,6 @@ export function createSyncGameCoachStore(client: StateClient = new ElectronState
         
         // Update local state to match main process
         set({
-          gameDetection: currentState.gameDetection,
           gameState: currentState.gameState,
           isAnalyzing: currentState.isAnalyzing,
           lastAnalysis: currentState.lastAnalysis,
@@ -156,7 +146,6 @@ export function createSyncGameCoachStore(client: StateClient = new ElectronState
         const unsubscribe = client.onStateUpdated((newState) => {
           console.log('SyncStore: Received state update from main:', newState)
           set({
-            gameDetection: newState.gameDetection,
             gameState: newState.gameState,
             isAnalyzing: newState.isAnalyzing,
             lastAnalysis: newState.lastAnalysis,
@@ -176,11 +165,10 @@ export function createSyncGameCoachStore(client: StateClient = new ElectronState
     },
 
     syncToMainProcess: async () => {
-      const { gameDetection, gameState, isAnalyzing, lastAnalysis, settings, isOverlayVisible } = get()
+      const { gameState, isAnalyzing, lastAnalysis, settings, isOverlayVisible } = get()
       
       try {
         await client.stateUpdateBulk({
-          gameDetection,
           gameState,
           isAnalyzing,
           lastAnalysis,
@@ -194,16 +182,6 @@ export function createSyncGameCoachStore(client: StateClient = new ElectronState
     },
 
     // State setters that update main process
-    setGameDetection: async (detection: GameDetectionResult | null) => {
-      console.log('SyncStore: Setting game detection:', detection)
-      try {
-        await client.stateSetGameDetection(detection)
-        // State will be updated via the event listener
-      } catch (error) {
-        console.error('SyncStore: Failed to set game detection:', error)
-        set({ error: 'Failed to update game detection' })
-      }
-    },
 
     setGameState: async (gameState: Partial<GameState>) => {
       console.log('SyncStore: Setting game state:', gameState)
@@ -260,26 +238,6 @@ export function createSyncGameCoachStore(client: StateClient = new ElectronState
       }
     },
 
-    // Game detection actions
-    startGameDetection: () => {
-      console.log('SyncStore: Starting game detection')
-      const { gameDetector, setGameDetection, setGameState } = get()
-      
-      gameDetector.startDetection(async (detection) => {
-        console.log('SyncStore: Game detection callback received:', detection)
-        await setGameDetection(detection)
-        await setGameState({ isRavenswatchDetected: detection.isGameRunning })
-      })
-    },
-
-    stopGameDetection: () => {
-      console.log('SyncStore: Stopping game detection')
-      const { gameDetector, setGameDetection, setGameState } = get()
-      
-      gameDetector.stopDetection()
-      setGameDetection(null)
-      setGameState({ isRavenswatchDetected: false })
-    },
 
     // Overlay actions
     showOverlay: async () => {

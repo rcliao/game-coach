@@ -13,10 +13,8 @@ const electronAPI = {  // Screen capture
 
   // Centralized state management
   stateGetCurrent: () => ipcRenderer.invoke('state-get-current'),
-  stateGetGameDetection: () => ipcRenderer.invoke('state-get-game-detection'),
   stateGetGameState: () => ipcRenderer.invoke('state-get-game-state'),
   stateGetSettings: () => ipcRenderer.invoke('state-get-settings'),
-  stateSetGameDetection: (detection: any) => ipcRenderer.invoke('state-set-game-detection', detection),
   stateSetGameState: (gameState: any) => ipcRenderer.invoke('state-set-game-state', gameState),
   stateSetAnalyzing: (analyzing: boolean) => ipcRenderer.invoke('state-set-analyzing', analyzing),
   stateSetLastAnalysis: (analysis: any) => ipcRenderer.invoke('state-set-last-analysis', analysis),
@@ -39,7 +37,6 @@ const electronAPI = {  // Screen capture
   getAppVersion: () => ipcRenderer.invoke('get-app-version'),
 
   // Game detection and templates
-  detectRavenswatch: () => ipcRenderer.invoke('detect-ravenswatch'),
   loadGameTemplate: (gameName: string) => ipcRenderer.invoke('load-game-template', gameName),
 
   // LLM analysis
@@ -54,9 +51,6 @@ const electronAPI = {  // Screen capture
     ipcRenderer.on('advice-received', (_event, advice) => callback(advice))
   },
 
-  onGameDetected: (callback: (gameInfo: any) => void) => {
-    ipcRenderer.on('game-detected', (_event, gameInfo) => callback(gameInfo))
-  },
   // Remove listeners
   removeAllListeners: (channel: string) => {
     ipcRenderer.removeAllListeners(channel)
