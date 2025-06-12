@@ -5,17 +5,13 @@ import {
 
 export interface LLMConfig {
   geminiApiKey: string
-  maxRetries: number
-  timeout: number
+  maxRetries?: number
+  timeout?: number
 }
 
 export interface AnalysisRequest {
   imageBuffer: Buffer
-  gameContext: string
-  analysisType: 'tactical' | 'strategic' | 'immediate'
-  hudRegions?: any[]
-  customInstructions?: string
-  variableSubstitutions?: Record<string, string>
+  prompt: string
 }
 
 export interface AnalysisResponse {
@@ -41,7 +37,11 @@ export class LLMService {
       hasGemini: !!config.geminiApiKey
     })
 
-    this.config = config
+    this.config = {
+      geminiApiKey: config.geminiApiKey,
+      maxRetries: config.maxRetries ?? 3,
+      timeout: config.timeout ?? 30000
+    }
     this.geminiFactory = factories?.createGemini ?? createDefaultGeminiClient
 
     try {
@@ -82,7 +82,7 @@ export class LLMService {
       const prompt = this.buildPrompt(request)
       const advice = await this.retryWithBackoff(
         () => this.analyzeWithGemini(request.imageBuffer, prompt),
-        this.config.maxRetries
+        this.config.maxRetries!
       )
 
       return {
@@ -99,46 +99,7 @@ export class LLMService {
   }
 
   private buildPrompt(request: AnalysisRequest): string {
-    // Use custom instructions if available, otherwise fall back to default
-    let basePrompt: string
-    
-    if (request.customInstructions && request.customInstructions.trim()) {
-      // Use custom instructions as base prompt
-      basePrompt = request.customInstructions
-      
-      // Substitute variables if provided
-      if (request.variableSubstitutions) {
-        for (const [key, value] of Object.entries(request.variableSubstitutions)) {
-          const placeholder = `\${${key}}`
-          const regex = new RegExp(placeholder.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'), 'g')
-          basePrompt = basePrompt.replace(regex, value)
-        }
-      }
-    } else {
-      // Fall back to default Ravenswatch prompt
-      basePrompt = `You are an expert Ravenswatch gaming coach. Analyze this gameplay screenshot and provide tactical advice.
-
-Game Context: ${request.gameContext}
-Analysis Type: ${request.analysisType}
-
-Focus on:
-- Immediate threats and opportunities
-- Character positioning and movement
-- Resource management (health, mana, items)
-- Enemy patterns and weaknesses
-- Optimal ability usage
-
-Provide concise, actionable advice in 1-2 sentences. Be specific and practical.`
-    }
-
-    // Add analysis type specific instructions
-    if (request.analysisType === 'immediate') {
-      basePrompt += '\n\nPrioritize urgent, time-sensitive advice for the next 5-10 seconds.'
-    } else if (request.analysisType === 'strategic') {
-      basePrompt += '\n\nFocus on longer-term strategy and positioning for the next 30-60 seconds.'
-    }
-
-    return basePrompt
+    return request.prompt
   }
 
   private async analyzeWithGemini(imageBuffer: Buffer, prompt: string): Promise<string> {

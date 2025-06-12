@@ -5,7 +5,6 @@ import AnalysisEngine from '../src/renderer/components/AnalysisEngine'
 
 var mockUseStore: any
 var captureMock: any
-var getHUDRegionsMock: any
 vi.mock('../src/renderer/stores/sync-store', () => ({
   useSyncGameCoachStore: () => mockUseStore()
 }))
@@ -17,14 +16,6 @@ vi.mock('../src/renderer/services/screen-capture-renderer', () => {
       captureFrame: (...args: any[]) => captureMock(...args),
       startCapture: vi.fn(),
       stopCapture: vi.fn()
-    }
-  }
-})
-vi.mock('../src/renderer/services/game-template-service', () => {
-  getHUDRegionsMock = vi.fn(async () => [])
-  return {
-    GameTemplateService: class {
-      getHUDRegions = getHUDRegionsMock
     }
   }
 })
@@ -49,7 +40,6 @@ describe('AnalysisEngine prompt usage', () => {
   beforeEach(() => {
     mockUseStore = vi.fn()
     captureMock.mockClear()
-    getHUDRegionsMock.mockClear()
   })
 
   it('calls analyzeGameplay with system instruction', async () => {
@@ -84,8 +74,7 @@ describe('AnalysisEngine prompt usage', () => {
 
     process.env.NODE_ENV = 'development'
     const screenClient = { getCaptureSources: vi.fn(), captureFrame: vi.fn().mockResolvedValue(undefined) }
-    const templateClient = {}
-    render(<AnalysisEngine isEnabled={false} screenSourceClient={screenClient as any} templateClient={templateClient as any} />)
+    render(<AnalysisEngine isEnabled={false} screenSourceClient={screenClient as any} />)
 
     // debugTestLLM is attached to window in development mode
     await act(async () => {
@@ -93,7 +82,7 @@ describe('AnalysisEngine prompt usage', () => {
     })
 
     expect(analyzeGameplay).toHaveBeenCalledWith(
-      expect.objectContaining({ customInstructions: 'basic prompt' })
+      expect.objectContaining({ prompt: 'basic prompt' })
     )
   })
 })
